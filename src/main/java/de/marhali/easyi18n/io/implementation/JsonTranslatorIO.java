@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 /**
  * Implementation for JSON translation files.
@@ -36,16 +37,17 @@ public class JsonTranslatorIO implements TranslatorIO {
                 throw new IllegalArgumentException("Specified folder is invalid (" + directoryPath + ")");
             }
 
-            VirtualFile[] files = directory.getChildren();
+            List<VirtualFile> files = Arrays.stream(directory.getChildren()).map(f->f.getChildren()[0]).collect(Collectors.toList());
 
             List<String> locales = new ArrayList<>();
             LocalizedNode nodes = new LocalizedNode(LocalizedNode.ROOT_KEY, new ArrayList<>());
 
             try {
                 for(VirtualFile file : files) {
-                    locales.add(file.getNameWithoutExtension());
+                    String localeName = file.getParent().getNameWithoutExtension();
+                    locales.add(localeName);
                     JsonObject tree = JsonParser.parseReader(new InputStreamReader(file.getInputStream(), file.getCharset())).getAsJsonObject();
-                    readTree(file.getNameWithoutExtension(), tree, nodes);
+                    readTree(localeName, tree, nodes);
                 }
 
                 callback.accept(new Translations(locales, nodes));
@@ -55,6 +57,7 @@ public class JsonTranslatorIO implements TranslatorIO {
                 callback.accept(null);
             }
         });
+
     }
 
     @Override
@@ -68,10 +71,10 @@ public class JsonTranslatorIO implements TranslatorIO {
                     writeTree(locale, content, translations.getNodes());
                     //JsonElement content = writeTree(locale, new JsonObject(), translations.getNodes());
 
-                    String fullPath = directoryPath + "/" + locale + "." + FILE_EXTENSION;
+                    String fullPath = directoryPath + "/" + locale + "/translation." + FILE_EXTENSION;
                     VirtualFile file = LocalFileSystem.getInstance().findFileByIoFile(new File(fullPath));
 
-                    file.setBinaryContent(gson.toJson(content).getBytes(file.getCharset()));
+                    Objects.requireNonNull(file).setBinaryContent(gson.toJson(content).getBytes(file.getCharset()));
                 }
 
                 // Successfully saved

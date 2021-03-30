@@ -5,6 +5,7 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents the persistent settings which can be configured.
+ *
  * @author marhali
  */
 public class SettingsState {
@@ -13,8 +14,10 @@ public class SettingsState {
 
     private String localesPath;
     private String previewLocale;
+    private String keySeparator;
 
-    public SettingsState() {}
+    public SettingsState() {
+    }
 
     public @Nullable String getLocalesPath() {
         return localesPath;
@@ -30,5 +33,17 @@ public class SettingsState {
 
     public void setPreviewLocale(String previewLocale) {
         this.previewLocale = previewLocale;
+    }
+
+    public String getKeySeparator() {
+        return keySeparator;
+    }
+
+    public void setKeySeparator(String keySeparator) {
+        this.keySeparator = keySeparator;
+    }
+
+    public boolean hasSeparator() {
+        return keySeparator != null && keySeparator.length() > 0;
     }
 }

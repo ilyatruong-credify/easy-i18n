@@ -30,7 +30,7 @@ public class IOUtil {
             throw new IllegalArgumentException("Specified folder is invalid (" + directoryPath + ")");
         }
 
-        Optional<VirtualFile> any = Arrays.stream(directory.getChildren()).findAny();
+        Optional<VirtualFile> any = Arrays.stream(directory.getChildren()).map(f->f.getChildren()[0]).findAny();
 
         if(!any.isPresent()) {
             throw new IllegalStateException("Could not determine i18n format. At least one locale file must be defined");

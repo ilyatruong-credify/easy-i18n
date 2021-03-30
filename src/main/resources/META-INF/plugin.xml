@@ -1,7 +1,7 @@
 <idea-plugin url="https://github.com/marhali/easy-i18n">
     <id>de.marhali.easyi18n</id>
     <name>Easy I18n</name>
-    <vendor>marhali</vendor>
+    <vendor>Phong Truong Hung</vendor>
 
     <!-- Product and plugin compatibility requirements -->
     <!-- https://plugins.jetbrains.com/docs/intellij/plugin-compatibility.html -->

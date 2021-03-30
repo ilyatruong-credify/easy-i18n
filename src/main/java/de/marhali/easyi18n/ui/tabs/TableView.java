@@ -34,7 +34,7 @@ public class TableView implements DataSynchronizer {
     private JPanel rootPanel;
     private JPanel containerPanel;
 
-    private JBTable table;
+    private final JBTable table;
 
     public TableView(Project project) {
         this.project = project;

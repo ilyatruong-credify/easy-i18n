@@ -10,6 +10,7 @@ import java.util.List;
 
 /**
  * Represents translation state instance. IO operations will be based on this file.
+ *
  * @author marhali
  */
 public class Translations {
@@ -22,8 +23,9 @@ public class Translations {
 
     /**
      * Constructs a new translation state instance.
+     *
      * @param locales List of all locales which are used for create / edit I18n-Key operations
-     * @param nodes Represents the translation state. Internally handled as a tree. See {@link LocalizedNode}
+     * @param nodes   Represents the translation state. Internally handled as a tree. See {@link LocalizedNode}
      */
     public Translations(@NotNull List<String> locales, @NotNull LocalizedNode nodes) {
         this.locales = locales;
@@ -39,34 +41,36 @@ public class Translations {
     }
 
     public @Nullable LocalizedNode getNode(@NotNull String fullPath) {
-        List<String> sections = TranslationsUtil.getSections(fullPath);
-
-        LocalizedNode node = nodes;
-
-        for(String section : sections) {
-            if(node == null) {
-                return null;
-            }
-            node = node.getChildren(section);
-        }
-
-        return node;
+        return nodes.getChildren(fullPath);
+//        List<String> sections = TranslationsUtil.getSections(fullPath);
+//
+//        LocalizedNode node = nodes;
+//
+//        for(String section : sections) {
+//            if(node == null) {
+//                return null;
+//            }
+//            node = node.getChildren(section);
+//        }
+//
+//        return node;
     }
 
     public @NotNull LocalizedNode getOrCreateNode(@NotNull String fullPath) {
-        List<String> sections = TranslationsUtil.getSections(fullPath);
+//        List<String> sections = TranslationsUtil.getSections(fullPath);
 
-        LocalizedNode node = nodes;
+        LocalizedNode node = nodes.getChildren(fullPath);
 
-        for(String section : sections) {
-            LocalizedNode subNode = node.getChildren(section);
+//        if(subNode == null) {
+//            subNode = new LocalizedNode(section, new ArrayList<>());
+//            node.addChildren(subNode);
+//        }
+//
+//        node = subNode;
 
-            if(subNode == null) {
-                subNode = new LocalizedNode(section, new ArrayList<>());
-                node.addChildren(subNode);
-            }
-
-            node = subNode;
+        if (node == null) {
+            node = new LocalizedNode(fullPath, new ArrayList<>());
+            nodes.addChildren(node);
         }
 
         return node;
@@ -75,11 +79,11 @@ public class Translations {
     public @NotNull List<String> getFullKeys() {
         List<String> keys = new ArrayList<>();
 
-        if(nodes.isLeaf()) { // Root has no children
+        if (nodes.isLeaf()) { // Root has no children
             return keys;
         }
 
-        for(LocalizedNode children : nodes.getChildren()) {
+        for (LocalizedNode children : nodes.getChildren()) {
             keys.addAll(getFullKeys("", children));
         }
 
@@ -89,12 +93,12 @@ public class Translations {
     public @NotNull List<String> getFullKeys(String parentFullPath, LocalizedNode localizedNode) {
         List<String> keys = new ArrayList<>();
 
-        if(localizedNode.isLeaf()) {
+        if (localizedNode.isLeaf()) {
             keys.add(parentFullPath + (parentFullPath.isEmpty() ? "" : ".") + localizedNode.getKey());
             return keys;
         }
 
-        for(LocalizedNode children : localizedNode.getChildren()) {
+        for (LocalizedNode children : localizedNode.getChildren()) {
             String childrenPath = parentFullPath + (parentFullPath.isEmpty() ? "" : ".") + localizedNode.getKey();
             keys.addAll(getFullKeys(childrenPath, children));
         }

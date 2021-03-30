@@ -23,8 +23,7 @@ public class SettingsDialog {
 
     private final Project project;
 
-    private TextFieldWithBrowseButton pathText;
-    private JBTextField previewText;
+    private SettingsForm settingsForm;
 
     public SettingsDialog(Project project) {
         this.project = project;
@@ -35,8 +34,8 @@ public class SettingsDialog {
         String previewLocale = SettingsService.getInstance(project).getState().getPreviewLocale();
 
         if(prepare(localesPath, previewLocale).show() == DialogWrapper.OK_EXIT_CODE) { // Save changes
-            SettingsService.getInstance(project).getState().setLocalesPath(pathText.getText());
-            SettingsService.getInstance(project).getState().setPreviewLocale(previewText.getText());
+            SettingsService.getInstance(project).getState().setLocalesPath(settingsForm.pathText.getText());
+            SettingsService.getInstance(project).getState().setPreviewLocale(settingsForm.previewText.getText());
 
             // Reload instance
             DataStore.getInstance(project).reloadFromDisk();
@@ -44,31 +43,19 @@ public class SettingsDialog {
     }
 
     private DialogBuilder prepare(String localesPath, String previewLocale) {
-        JPanel rootPanel = new JPanel(new GridLayout(0, 1, 2, 2));
-
-        JBLabel pathLabel = new JBLabel(ResourceBundle.getBundle("messages").getString("settings.path.text"));
-        pathText = new TextFieldWithBrowseButton(new JTextField(localesPath));
-
-        pathLabel.setLabelFor(pathText);
-        pathText.addBrowseFolderListener(ResourceBundle.getBundle("messages").getString("settings.path.title"), null, project, new FileChooserDescriptor(
+        settingsForm = new SettingsForm();
+        settingsForm.pathText.setText(localesPath);
+        settingsForm.pathText.addBrowseFolderListener(ResourceBundle.getBundle("messages").getString("settings.path.title"), null, project, new FileChooserDescriptor(
                 false, true, false, false, false, false));
 
-        rootPanel.add(pathLabel);
-        rootPanel.add(pathText);
-
-        JBLabel previewLabel = new JBLabel(ResourceBundle.getBundle("messages").getString("settings.preview"));
-        previewText = new JBTextField(previewLocale);
-        previewLabel.setLabelFor(previewText);
-
-        rootPanel.add(previewLabel);
-        rootPanel.add(previewText);
+        settingsForm.previewText.setText(previewLocale);
 
         DialogBuilder builder = new DialogBuilder();
         builder.setTitle(ResourceBundle.getBundle("messages").getString("action.settings"));
         builder.removeAllActions();
         builder.addCancelAction();
         builder.addOkAction();
-        builder.setCenterPanel(rootPanel);
+        builder.setCenterPanel(settingsForm.contentPane);
 
         return builder;
     }
