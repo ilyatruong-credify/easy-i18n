@@ -23,13 +23,16 @@ plugins {
 group = properties("pluginGroup")
 version = properties("pluginVersion")
 
-// Configure project's dependencies
+// Configure project"s dependencies
 repositories {
     mavenCentral()
     jcenter()
 }
 dependencies {
     detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.15.0")
+    implementation("com.google.api-client:google-api-client:1.30.4")
+    implementation("com.google.oauth-client:google-oauth-client-jetty:1.30.6")
+    implementation("com.google.apis:google-api-services-sheets:v4-rev581-1.25.0")
 }
 
 // Configure gradle-intellij-plugin plugin.
@@ -42,7 +45,7 @@ intellij {
     updateSinceUntilBuild = true
 
     // Plugin Dependencies. Uses `platformPlugins` property from the gradle.properties file.
-    setPlugins(*properties("platformPlugins").split(',').map(String::trim).filter(String::isNotEmpty).toTypedArray())
+    setPlugins(*properties("platformPlugins").split(",").map(String::trim).filter(String::isNotEmpty).toTypedArray())
 }
 
 // Configure gradle-changelog-plugin plugin.
@@ -84,7 +87,7 @@ tasks {
         sinceBuild(properties("pluginSinceBuild"))
         untilBuild(properties("pluginUntilBuild"))
 
-        // Extract the <!-- Plugin description --> section from README.md and provide for the plugin's manifest
+        // Extract the <!-- Plugin description --> section from README.md and provide for the plugin"s manifest
         pluginDescription(
             closure {
                 File("./README.md").readText().lines().run {
@@ -117,6 +120,6 @@ tasks {
         // pluginVersion is based on the SemVer (https://semver.org) and supports pre-release labels, like 2.1.7-alpha.3
         // Specify pre-release label to publish the plugin in a custom Release Channel automatically. Read more:
         // https://plugins.jetbrains.com/docs/intellij/deployment.html#specifying-a-release-channel
-        channels(properties("pluginVersion").split('-').getOrElse(1) { "default" }.split('.').first())
+        channels(properties("pluginVersion").split("-").getOrElse(1) { "default" }.split(".").first())
     }
 }

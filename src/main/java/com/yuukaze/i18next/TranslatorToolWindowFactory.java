@@ -47,6 +47,7 @@ public class TranslatorToolWindowFactory implements ToolWindowFactory {
         // Initialize data store and load from disk
         DataStore store = DataStore.getInstance(project);
         store.addSynchronizer(tableView);
+        store.addSynchronizer(tableView.getRootKeyTree());
 
         store.reloadFromDisk();
     }

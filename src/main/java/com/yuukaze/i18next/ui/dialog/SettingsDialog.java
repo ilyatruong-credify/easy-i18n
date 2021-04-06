@@ -31,19 +31,21 @@ public class SettingsDialog {
         String previewLocale = state.getPreviewLocale();
         boolean disableKeySeparator = state.isHasSeparator();
         String keySeparator = state.getKeySeparator();
+        String spreadSheetId = state.getSpreadSheetId();
 
-        if (prepare(localesPath, previewLocale, disableKeySeparator, keySeparator).show() == DialogWrapper.OK_EXIT_CODE) { // Save changes
+        if (prepare(localesPath, previewLocale, disableKeySeparator, keySeparator, spreadSheetId).show() == DialogWrapper.OK_EXIT_CODE) { // Save changes
             state.setLocalesPath(settingsForm.pathText.getText());
             state.setPreviewLocale(settingsForm.previewText.getText());
             state.setHasSeparator(settingsForm.getDisableKeySeparator());
             state.setKeySeparator(settingsForm.keySeparator.getText());
+            state.setSpreadSheetId(settingsForm.spreadsheetIdText.getText());
 
             // Reload instance
             DataStore.getInstance(project).reloadFromDisk();
         }
     }
 
-    private DialogBuilder prepare(String localesPath, String previewLocale, boolean disableKeySeparator, String keySeparator) {
+    private DialogBuilder prepare(String localesPath, String previewLocale, boolean disableKeySeparator, String keySeparator, String spreadSheetId) {
         settingsForm = new SettingsForm();
         settingsForm.pathText.setText(localesPath);
         settingsForm.pathText.addBrowseFolderListener(ResourceBundle.getBundle("messages").getString("settings.path.title"), null, project, new FileChooserDescriptor(
@@ -51,6 +53,7 @@ public class SettingsDialog {
 
         settingsForm.previewText.setText(previewLocale);
         settingsForm.setDisableKeySeparator(disableKeySeparator);
+        settingsForm.spreadsheetIdText.setText(spreadSheetId);
 
         DialogBuilder builder = new DialogBuilder();
         builder.setTitle(ResourceBundle.getBundle("messages").getString("action.settings"));

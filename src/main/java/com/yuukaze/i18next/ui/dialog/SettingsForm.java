@@ -1,5 +1,6 @@
 package com.yuukaze.i18next.ui.dialog;
 
+import com.intellij.openapi.ui.Divider;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBTextField;
@@ -13,6 +14,8 @@ public class SettingsForm {
     private JCheckBox disableKeySeparator;
     public JBTextField keySeparator;
     private JBLabel keySeparatorLabel;
+    public JBTextField spreadsheetIdText;
+    private JButton testConnectionButton;
 
     public void setDisableKeySeparator(boolean value){
         disableKeySeparator.setSelected(value);

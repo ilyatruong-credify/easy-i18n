@@ -16,6 +16,7 @@ public class SettingsState {
     private String previewLocale;
     private String keySeparator;
     private boolean hasSeparator;
+    private String spreadSheetId;
 
     public SettingsState() {
     }
@@ -50,5 +51,13 @@ public class SettingsState {
 
     public void setHasSeparator(boolean hasSeparator) {
         this.hasSeparator = hasSeparator;
+    }
+
+    public String getSpreadSheetId() {
+        return spreadSheetId;
+    }
+
+    public void setSpreadSheetId(String spreadSheetId) {
+        this.spreadSheetId = spreadSheetId;
     }
 }
