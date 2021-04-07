@@ -17,6 +17,7 @@ public class SettingsState {
     private String keySeparator;
     private boolean hasSeparator;
     private String spreadSheetId;
+    private String spreadSheetTab;
 
     public SettingsState() {
     }
@@ -59,5 +60,13 @@ public class SettingsState {
 
     public void setSpreadSheetId(String spreadSheetId) {
         this.spreadSheetId = spreadSheetId;
+    }
+
+    public String getSpreadSheetTab() {
+        return spreadSheetTab;
+    }
+
+    public void setSpreadSheetTab(String spreadSheetTab) {
+        this.spreadSheetTab = spreadSheetTab;
     }
 }

@@ -27,33 +27,21 @@ public class SettingsDialog {
 
     public void showAndHandle() {
         SettingsState state = SettingsService.getInstance(project).getState();
-        String localesPath = state.getLocalesPath();
-        String previewLocale = state.getPreviewLocale();
-        boolean disableKeySeparator = state.isHasSeparator();
-        String keySeparator = state.getKeySeparator();
-        String spreadSheetId = state.getSpreadSheetId();
 
-        if (prepare(localesPath, previewLocale, disableKeySeparator, keySeparator, spreadSheetId).show() == DialogWrapper.OK_EXIT_CODE) { // Save changes
-            state.setLocalesPath(settingsForm.pathText.getText());
-            state.setPreviewLocale(settingsForm.previewText.getText());
-            state.setHasSeparator(settingsForm.getDisableKeySeparator());
-            state.setKeySeparator(settingsForm.keySeparator.getText());
-            state.setSpreadSheetId(settingsForm.spreadsheetIdText.getText());
+        if (prepare(state).show() == DialogWrapper.OK_EXIT_CODE) {
+            settingsForm.pushDataIntoState(state);
 
             // Reload instance
             DataStore.getInstance(project).reloadFromDisk();
         }
     }
 
-    private DialogBuilder prepare(String localesPath, String previewLocale, boolean disableKeySeparator, String keySeparator, String spreadSheetId) {
+    private DialogBuilder prepare(SettingsState state) {
         settingsForm = new SettingsForm();
-        settingsForm.pathText.setText(localesPath);
         settingsForm.pathText.addBrowseFolderListener(ResourceBundle.getBundle("messages").getString("settings.path.title"), null, project, new FileChooserDescriptor(
                 false, true, false, false, false, false));
 
-        settingsForm.previewText.setText(previewLocale);
-        settingsForm.setDisableKeySeparator(disableKeySeparator);
-        settingsForm.spreadsheetIdText.setText(spreadSheetId);
+        settingsForm.fetchDataFromState(state);
 
         DialogBuilder builder = new DialogBuilder();
         builder.setTitle(ResourceBundle.getBundle("messages").getString("action.settings"));

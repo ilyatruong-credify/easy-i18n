@@ -1,0 +1,14 @@
+<idea-plugin url="https://github.com/marhali/easy-i18n">
+    <id>com.yuukaze.i18next</id>
+    <name>I18next</name>
+    <vendor>Phong Truong Hung</vendor>
+
+    <!-- Product and plugin compatibility requirements -->
+    <!-- https://plugins.jetbrains.com/docs/intellij/plugin-compatibility.html -->
+    <depends>com.intellij.modules.lang</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <toolWindow id="I18next" anchor="bottom" factoryClass="com.yuukaze.i18next.TranslatorToolWindowFactory" />
+        <projectService serviceImplementation="com.yuukaze.i18next.service.SettingsService" />
+    </extensions>
+</idea-plugin>
