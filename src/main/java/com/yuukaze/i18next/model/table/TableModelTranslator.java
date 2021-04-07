@@ -1,10 +1,11 @@
 package com.yuukaze.i18next.model.table;
 
-import com.sun.tools.javac.util.Pair;
+import com.intellij.openapi.util.Pair;
 import com.yuukaze.i18next.model.KeyedTranslation;
 import com.yuukaze.i18next.model.LocalizedNode;
 import com.yuukaze.i18next.model.TranslationUpdate;
 import com.yuukaze.i18next.model.Translations;
+import com.yuukaze.i18next.util.TranslationKeyRemovalTest;
 import org.jetbrains.annotations.Nls;
 
 import javax.swing.event.TableModelListener;
@@ -12,9 +13,6 @@ import javax.swing.table.TableModel;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
-import java.util.function.Predicate;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -29,24 +27,6 @@ public class TableModelTranslator implements TableModel {
 
     private final Consumer<TranslationUpdate> updater;
 
-    private static class KeyTest implements Predicate<Pair<String, String>> {
-        private final String searchQuery;
-        private final Pattern enPattern = Pattern.compile("^en:(.*?)$");
-
-        KeyTest(String searchQuery) {
-            this.searchQuery = searchQuery;
-        }
-
-        @Override
-        public boolean test(Pair<String, String> s) {
-            String key = s.fst,
-                    en = s.snd;
-            Matcher m = enPattern.matcher(searchQuery);
-            if (!m.find()) return !key.startsWith(searchQuery);
-            return en != null && !en.startsWith(m.group(1));
-        }
-    }
-
     /**
      * @param translations Translations instance
      * @param searchQuery  Search / filter param
@@ -60,10 +40,10 @@ public class TableModelTranslator implements TableModel {
         List<Pair<String, String>> fullKeys = translations.getFullKeys();
 
         if (searchQuery != null && !searchQuery.isEmpty()) { // Filter keys by searchQuery
-            fullKeys.removeIf(new KeyTest(searchQuery));
+            fullKeys.removeIf(new TranslationKeyRemovalTest(searchQuery));
         }
 
-        this.fullKeys = fullKeys.stream().map(i->i.fst).collect(Collectors.toList());
+        this.fullKeys = fullKeys.stream().map(i -> i.first).collect(Collectors.toList());
     }
 
     @Override

@@ -5,6 +5,7 @@ import com.intellij.openapi.ui.DialogWrapper;
 import com.yuukaze.i18next.model.KeyedTranslation;
 import com.yuukaze.i18next.model.TranslationCreate;
 import com.yuukaze.i18next.service.DataStore;
+import com.yuukaze.i18next.service.SettingsService;
 import com.yuukaze.i18next.ui.components.LocaleDialogBase;
 import org.jetbrains.annotations.Nullable;
 
@@ -19,10 +20,13 @@ import java.util.ResourceBundle;
  */
 public class AddDialog extends LocaleDialogBase {
     private String preKey;
+    private String extractedText;
+    private final String previewLocale;
 
     public AddDialog(Project project, String preKey) {
-        super(project,ResourceBundle.getBundle("messages").getString("action.add"));
+        super(project, ResourceBundle.getBundle("messages").getString("action.add"));
         this.preKey = preKey;
+        this.previewLocale = SettingsService.getInstance(project).getState().getPreviewLocale();
     }
 
     @Nullable
@@ -34,18 +38,18 @@ public class AddDialog extends LocaleDialogBase {
     @Nullable
     @Override
     protected String getTranslation(String locale) {
-        return null;
+        return locale.equals(previewLocale) ? extractedText : null;
     }
 
     public void showAndHandle() {
         int code = prepare().show();
 
         if (code == DialogWrapper.OK_EXIT_CODE) {
-            saveTranslation();
+            callback.accept(saveTranslation());
         }
     }
 
-    private void saveTranslation() {
+    private KeyedTranslation saveTranslation() {
         Map<String, String> messages = new HashMap<>();
 
         valueTextFields.forEach((k, v) -> {
@@ -53,8 +57,17 @@ public class AddDialog extends LocaleDialogBase {
                 messages.put(k, v.getText());
             }
         });
-
-        TranslationCreate creation = new TranslationCreate(new KeyedTranslation(keyTextField.getText(), messages));
+        KeyedTranslation keyed = new KeyedTranslation(keyTextField.getText(), messages);
+        TranslationCreate creation = new TranslationCreate(keyed);
         DataStore.getInstance(project).processUpdate(creation);
+        return keyed;
+    }
+
+    public String getExtractedText() {
+        return extractedText;
+    }
+
+    public void setExtractedText(String extractedText) {
+        this.extractedText = extractedText;
     }
 }

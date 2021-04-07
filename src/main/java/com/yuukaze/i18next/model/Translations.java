@@ -1,6 +1,6 @@
 package com.yuukaze.i18next.model;
 
-import com.sun.tools.javac.util.Pair;
+import com.intellij.openapi.util.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

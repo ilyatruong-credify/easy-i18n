@@ -5,6 +5,7 @@ import com.intellij.openapi.ui.DialogBuilder;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.components.JBTextField;
+import com.yuukaze.i18next.model.KeyedTranslation;
 import com.yuukaze.i18next.service.DataStore;
 import com.yuukaze.i18next.ui.dialog.LocaleRecord;
 import com.yuukaze.i18next.ui.dialog.descriptor.DeleteActionDescriptor;
@@ -15,9 +16,20 @@ import javax.swing.border.EtchedBorder;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.function.Consumer;
 
 public abstract class LocaleDialogBase {
     protected final Project project;
+
+    public Consumer<KeyedTranslation> getCallback() {
+        return callback;
+    }
+
+    public void setCallback(Consumer<KeyedTranslation> callback) {
+        this.callback = callback;
+    }
+
+    protected Consumer<KeyedTranslation> callback;
 
     @SuppressWarnings("FieldCanBeLocal")
     protected JBTextField keyTextField;
