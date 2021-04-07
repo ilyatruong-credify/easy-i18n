@@ -30,9 +30,10 @@ repositories {
 }
 dependencies {
     detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.15.0")
-    implementation("com.google.api-client:google-api-client:1.30.4")
-    implementation("com.google.oauth-client:google-oauth-client-jetty:1.30.6")
+    implementation("com.google.api-client:google-api-client:1.31.3")
     implementation("com.google.apis:google-api-services-sheets:v4-rev581-1.25.0")
+    implementation("com.google.http-client:google-http-client:1.39.1")
+    implementation("com.google.oauth-client:google-oauth-client-jetty:1.31.4")
 }
 
 // Configure gradle-intellij-plugin plugin.
@@ -88,19 +89,19 @@ tasks {
         untilBuild(properties("pluginUntilBuild"))
 
         // Extract the <!-- Plugin description --> section from README.md and provide for the plugin"s manifest
-        pluginDescription(
-            closure {
-                File("./README.md").readText().lines().run {
-                    val start = "<!-- Plugin description -->"
-                    val end = "<!-- Plugin description end -->"
-
-                    if (!containsAll(listOf(start, end))) {
-                        throw GradleException("Plugin description section not found in README.md:\n$start ... $end")
-                    }
-                    subList(indexOf(start) + 1, indexOf(end))
-                }.joinToString("\n").run { markdownToHTML(this) }
-            }
-        )
+//        pluginDescription(
+//            closure {
+//                File("./README.md").readText().lines().run {
+//                    val start = "<!-- Plugin description -->"
+//                    val end = "<!-- Plugin description end -->"
+//
+//                    if (!containsAll(listOf(start, end))) {
+//                        throw GradleException("Plugin description section not found in README.md:\n$start ... $end")
+//                    }
+//                    subList(indexOf(start) + 1, indexOf(end))
+//                }.joinToString("\n").run { markdownToHTML(this) }
+//            }
+//        )
 
         // Get the latest available change notes from the changelog file
         changeNotes(

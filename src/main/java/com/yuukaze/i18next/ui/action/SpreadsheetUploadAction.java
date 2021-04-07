@@ -9,6 +9,7 @@ import com.intellij.openapi.project.Project;
 import com.yuukaze.i18next.model.Translations;
 import com.yuukaze.i18next.model.spreadsheet.SpreadsheetUploadModel;
 import com.yuukaze.i18next.service.DataStore;
+import com.yuukaze.i18next.service.Notifier;
 import com.yuukaze.i18next.service.SpreadsheetExecutorBase;
 import org.jetbrains.annotations.NotNull;
 
@@ -39,6 +40,7 @@ public class SpreadsheetUploadAction extends AnAction {
                         .setValueInputOption("RAW")
                         .execute();
                 System.out.printf("%d cells updated.", result.getUpdatedCells());
+                Notifier.notifySuccess(project, "Successfully upload translation to Spreadsheet");
             } catch (IOException e) {
                 e.printStackTrace();
             }

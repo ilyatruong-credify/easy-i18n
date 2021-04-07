@@ -101,34 +101,36 @@ public class DataStore {
      * @param update The update to process. For more information see {@link TranslationUpdate}
      */
     public void processUpdate(TranslationUpdate update) {
-        if(update.isDeletion() || update.isKeyChange()) { // Delete origin i18n key
-            String originKey = update.getOrigin().getKey();
-            List<String> sections = TranslationsUtil.getSections(originKey);
-            String nodeKey = sections.remove(sections.size() - 1); // Remove last node, which needs to be removed by parent
+        if(update!=null){
+            if(update.isDeletion() || update.isKeyChange()) { // Delete origin i18n key
+                String originKey = update.getOrigin().getKey();
+                List<String> sections = TranslationsUtil.getSections(originKey);
+                String nodeKey = sections.remove(sections.size() - 1); // Remove last node, which needs to be removed by parent
 
-            LocalizedNode node = translations.getNodes();
-            for(String section : sections) {
-                if(node == null) { // Might be possible on multi-delete
-                    break;
+                LocalizedNode node = translations.getNodes();
+                for(String section : sections) {
+                    if(node == null) { // Might be possible on multi-delete
+                        break;
+                    }
+
+                    node = node.getChildren(section);
                 }
 
-                node = node.getChildren(section);
-            }
+                if(node != null) { // Only remove if parent exists. Might be already deleted on multi-delete
+                    node.removeChildren(nodeKey);
 
-            if(node != null) { // Only remove if parent exists. Might be already deleted on multi-delete
-                node.removeChildren(nodeKey);
-
-                // Parent is empty now, we need to remove it as well (except root)
-                if(node.getChildren().isEmpty() && !node.getKey().equals(LocalizedNode.ROOT_KEY)) {
-                    processUpdate(new TranslationDelete(new KeyedTranslation(
-                            TranslationsUtil.sectionsToFullPath(sections), null)));
+                    // Parent is empty now, we need to remove it as well (except root)
+                    if(node.getChildren().isEmpty() && !node.getKey().equals(LocalizedNode.ROOT_KEY)) {
+                        processUpdate(new TranslationDelete(new KeyedTranslation(
+                                TranslationsUtil.sectionsToFullPath(sections), null)));
+                    }
                 }
             }
-        }
 
-        if(!update.isDeletion()) { // Recreate with changed val / create
-            LocalizedNode node = translations.getOrCreateNode(update.getChange().getKey());
-            node.setValue(update.getChange().getTranslations());
+            if(!update.isDeletion()) { // Recreate with changed val / create
+                LocalizedNode node = translations.getOrCreateNode(update.getChange().getKey());
+                node.setValue(update.getChange().getTranslations());
+            }
         }
 
         // Persist changes and propagate them on success

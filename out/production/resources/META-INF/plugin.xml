@@ -10,5 +10,6 @@
     <extensions defaultExtensionNs="com.intellij">
         <toolWindow id="I18next" anchor="bottom" factoryClass="com.yuukaze.i18next.TranslatorToolWindowFactory" />
         <projectService serviceImplementation="com.yuukaze.i18next.service.SettingsService" />
+        <notificationGroup id="EasyI18n Notification Group" displayType="BALLOON"/>
     </extensions>
 </idea-plugin>
