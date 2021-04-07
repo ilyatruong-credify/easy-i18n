@@ -53,7 +53,7 @@ public class SettingsState {
         this.hasSeparator = hasSeparator;
     }
 
-    public String getSpreadSheetId() {
+    public @Nullable String getSpreadSheetId() {
         return spreadSheetId;
     }
 
