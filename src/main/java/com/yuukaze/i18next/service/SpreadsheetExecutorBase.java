@@ -1,6 +1,7 @@
 package com.yuukaze.i18next.service;
 
 import com.google.api.services.sheets.v4.Sheets;
+import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.project.Project;
 import com.yuukaze.i18next.model.SettingsState;
 
@@ -9,7 +10,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.security.GeneralSecurityException;
 
-public abstract class SpreadsheetExecutorBase {
+public abstract class SpreadsheetExecutorBase implements Runnable {
     protected SpreadsheetSynchronizer synchronizer;
     protected String spreadsheetId;
     protected Project project;
@@ -37,5 +38,7 @@ public abstract class SpreadsheetExecutorBase {
         return synchronizer.getSheetService();
     }
 
-    public abstract void doAction();
+    public void doAction() {
+        ProgressManager.getInstance().runProcess(this,null);
+    }
 }

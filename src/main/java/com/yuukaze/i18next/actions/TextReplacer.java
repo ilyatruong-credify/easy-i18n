@@ -43,6 +43,6 @@ public class TextReplacer extends PsiElementBaseIntentionAction implements Inten
     }
 
     private void doInvoke(Editor editor, Project project, PsiElement element) {
-        KeyRequest.INSTANCE.key(project, Objects.requireNonNull(editor.getSelectionModel().getSelectedText()));
+        KeyRequest.INSTANCE.key(project, Objects.requireNonNull(editor.getSelectionModel().getSelectedText()), editor);
     }
 }
