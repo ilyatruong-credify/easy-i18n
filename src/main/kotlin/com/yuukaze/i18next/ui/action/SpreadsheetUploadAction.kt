@@ -23,7 +23,7 @@ class SpreadsheetUploadAction : AnAction("Upload to Spreadsheet", null, AllIcons
       val body = ValueRange().setValues(SpreadsheetUploadModel(translations))
       try {
         val result =
-          synchronizer.sheetService.spreadsheets().values().update(spreadsheetId, SPREADSHEET_RANGE, body)
+          synchronizer.sheetService!!.spreadsheets().values().update(spreadsheetId, SPREADSHEET_RANGE, body)
             .setValueInputOption("RAW")
             .execute()
         System.out.printf("%d cells updated.", result.updatedCells)
