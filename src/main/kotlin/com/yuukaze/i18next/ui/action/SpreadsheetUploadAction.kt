@@ -12,25 +12,25 @@ import com.yuukaze.i18next.service.SpreadsheetExecutorBase
 import java.io.IOException
 
 class SpreadsheetUploadAction : AnAction("Upload to Spreadsheet", null, AllIcons.Actions.Upload) {
-    override fun actionPerformed(e: AnActionEvent) {
-        val executor: SpreadsheetExecutorBase = Executor(e.project)
-        executor.doAction()
-    }
+  override fun actionPerformed(e: AnActionEvent) {
+    val executor: SpreadsheetExecutorBase = Executor(e.project)
+    executor.doAction()
+  }
 
-    class Executor(project: Project?) : SpreadsheetExecutorBase(project) {
-        override fun run() {
-            val translations = DataStore.getInstance(project).translations
-            val body = ValueRange().setValues(SpreadsheetUploadModel(translations))
-            try {
-                val result =
-                    synchronizer.sheetService.spreadsheets().values().update(spreadsheetId, SPREADSHEET_RANGE, body)
-                        .setValueInputOption("RAW")
-                        .execute()
-                System.out.printf("%d cells updated.", result.updatedCells)
-                Notifier.notifySuccess(project, "Successfully upload translation to Spreadsheet")
-            } catch (e: IOException) {
-                e.printStackTrace()
-            }
-        }
+  class Executor(project: Project?) : SpreadsheetExecutorBase(project) {
+    override fun run() {
+      val translations = DataStore.getInstance(project).translations
+      val body = ValueRange().setValues(SpreadsheetUploadModel(translations))
+      try {
+        val result =
+          synchronizer.sheetService.spreadsheets().values().update(spreadsheetId, SPREADSHEET_RANGE, body)
+            .setValueInputOption("RAW")
+            .execute()
+        System.out.printf("%d cells updated.", result.updatedCells)
+        Notifier.notifySuccess(project, "Successfully upload translation to Spreadsheet")
+      } catch (e: IOException) {
+        e.printStackTrace()
+      }
     }
+  }
 }

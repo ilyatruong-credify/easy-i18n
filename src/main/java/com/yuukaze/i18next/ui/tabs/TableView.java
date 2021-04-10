@@ -11,14 +11,18 @@ import com.yuukaze.i18next.service.DataStore;
 import com.yuukaze.i18next.ui.components.RootKeyTree;
 import com.yuukaze.i18next.ui.dialog.EditDialog;
 import com.yuukaze.i18next.ui.listener.DeleteKeyListener;
+import com.yuukaze.i18next.ui.listener.DoubleClickListener;
 import com.yuukaze.i18next.ui.listener.PopupClickListener;
-import com.yuukaze.i18next.ui.renderer.CustomTableHeaderCellRenderer;
+import com.yuukaze.i18next.ui.model.FilterUntranslatedModel;
 import com.yuukaze.i18next.ui.renderer.CustomTableCellRenderer;
+import com.yuukaze.i18next.ui.renderer.CustomTableHeaderCellRenderer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
+import javax.swing.table.JTableHeader;
 import java.awt.event.MouseEvent;
+import java.util.Objects;
 import java.util.ResourceBundle;
 
 /**
@@ -35,6 +39,7 @@ public class TableView implements DataSynchronizer {
     private JScrollPane keyTreePane;
     private final RootKeyTree rootKeyTree;
     private final JBTable table;
+    private final FilterUntranslatedModel filterUntranslated = new FilterUntranslatedModel();
 
     public TableView(Project project) {
         this.project = project;
@@ -44,9 +49,7 @@ public class TableView implements DataSynchronizer {
         table.addMouseListener(new PopupClickListener(this::handlePopup));
         table.addKeyListener(new DeleteKeyListener(handleDeleteKey()));
         table.setDefaultRenderer(String.class, new CustomTableCellRenderer());
-        table.getTableHeader().setReorderingAllowed(false);
-        table.getTableHeader().setDefaultRenderer(new CustomTableHeaderCellRenderer());
-
+        setupTableHeader();
         JBScrollPane scrollPane = new JBScrollPane(table);
         scrollPane.setBorder(new CustomLineBorder(JBColor.border(), 0, 1, 0, 0));
         containerPanel.add(scrollPane);
@@ -55,9 +58,15 @@ public class TableView implements DataSynchronizer {
         keyTreePane.setViewportView(rootKeyTree);
     }
 
+    private void setupTableHeader() {
+        JTableHeader header = table.getTableHeader();
+        header.setReorderingAllowed(false);
+        header.setDefaultRenderer(new CustomTableHeaderCellRenderer(header,filterUntranslated));
+        header.addMouseListener(new DoubleClickListener(this::handleFilter));
+    }
+
     private void handlePopup(MouseEvent e) {
         int row = table.rowAtPoint(e.getPoint());
-
         if (row >= 0) {
             String fullPath = String.valueOf(table.getValueAt(row, 0));
             LocalizedNode node = DataStore.getInstance(project).getTranslations().getNode(fullPath);
@@ -65,6 +74,15 @@ public class TableView implements DataSynchronizer {
             if (node != null) {
                 new EditDialog(project, new KeyedTranslation(fullPath, node.getValue())).showAndHandle();
             }
+        }
+    }
+
+    private void handleFilter(MouseEvent e) {
+        int col = table.columnAtPoint(e.getPoint());
+        String colName = table.getColumnName(col);
+        if (col >= 0 && filterUntranslated.getAvailable().contains(colName)) {
+            String current = filterUntranslated.getToggle();
+            filterUntranslated.setToggle(Objects.equals(current, colName) ? null : colName);
         }
     }
 
