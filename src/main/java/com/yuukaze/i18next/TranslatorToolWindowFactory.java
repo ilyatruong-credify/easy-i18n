@@ -10,6 +10,7 @@ import com.yuukaze.i18next.model.SettingsState;
 import com.yuukaze.i18next.service.DataStore;
 import com.yuukaze.i18next.service.SettingsService;
 import com.yuukaze.i18next.service.WindowManager;
+import com.yuukaze.i18next.ui.Icons;
 import com.yuukaze.i18next.ui.action.*;
 import com.yuukaze.i18next.ui.tabs.TableView;
 import org.jetbrains.annotations.NotNull;
@@ -24,6 +25,11 @@ import java.util.ResourceBundle;
  * @author marhali
  */
 public class TranslatorToolWindowFactory implements ToolWindowFactory {
+
+    @Override
+    public void init(@NotNull ToolWindow toolWindow) {
+        toolWindow.setIcon(Icons.ToolWindowIcon);
+    }
 
     @Override
     public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {

@@ -12,7 +12,8 @@ import com.yuukaze.i18next.ui.components.RootKeyTree;
 import com.yuukaze.i18next.ui.dialog.EditDialog;
 import com.yuukaze.i18next.ui.listener.DeleteKeyListener;
 import com.yuukaze.i18next.ui.listener.PopupClickListener;
-import com.yuukaze.i18next.ui.renderer.TableRenderer;
+import com.yuukaze.i18next.ui.renderer.CustomTableHeaderCellRenderer;
+import com.yuukaze.i18next.ui.renderer.CustomTableCellRenderer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -42,7 +43,9 @@ public class TableView implements DataSynchronizer {
         table.getEmptyText().setText(ResourceBundle.getBundle("messages").getString("view.empty"));
         table.addMouseListener(new PopupClickListener(this::handlePopup));
         table.addKeyListener(new DeleteKeyListener(handleDeleteKey()));
-        table.setDefaultRenderer(String.class, new TableRenderer());
+        table.setDefaultRenderer(String.class, new CustomTableCellRenderer());
+        table.getTableHeader().setReorderingAllowed(false);
+        table.getTableHeader().setDefaultRenderer(new CustomTableHeaderCellRenderer());
 
         JBScrollPane scrollPane = new JBScrollPane(table);
         scrollPane.setBorder(new CustomLineBorder(JBColor.border(), 0, 1, 0, 0));
@@ -90,7 +93,7 @@ public class TableView implements DataSynchronizer {
         return table;
     }
 
-    public RootKeyTree getRootKeyTree(){
+    public RootKeyTree getRootKeyTree() {
         return rootKeyTree;
     }
 }

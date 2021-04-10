@@ -134,6 +134,7 @@ public class DataStore {
         }
 
         // Persist changes and propagate them on success
+        System.out.println(translations.getNodes().getChildren().size());
         saveToDisk(success -> {
             if(success) {
                 synchronizer.forEach(synchronizer -> synchronizer.synchronize(translations, searchQuery));

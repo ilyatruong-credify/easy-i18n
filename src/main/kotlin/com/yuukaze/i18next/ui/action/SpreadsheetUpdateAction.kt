@@ -36,6 +36,7 @@ class SpreadsheetUpdateAction : AnAction("Update from Spreadsheet", null, AllIco
                         messages[locale] = translatedText
                     }
                 }
+                println(translations.nodes.children.size)
                 DataStore.getInstance(project).processUpdate(null)
                 Notifier.notifySuccess(project, "Successfully update translation from Spreadsheet")
             } catch (e: IOException) {
