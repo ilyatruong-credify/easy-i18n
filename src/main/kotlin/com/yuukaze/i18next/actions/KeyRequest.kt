@@ -3,13 +3,12 @@ package com.yuukaze.i18next.actions
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.popup.JBPopupFactory
+import com.intellij.util.Consumer
 import com.yuukaze.i18next.service.DataStore
 import com.yuukaze.i18next.ui.dialog.AddDialog
-import java.awt.Toolkit
-import java.awt.datatransfer.StringSelection
 
 object KeyRequest {
-  fun key(project: Project, text: String, editor: Editor) {
+  fun key(project: Project, text: String, editor: Editor,callback: Consumer<String>) {
     val translations = DataStore.getInstance(project).translations
     val fullKeys = translations.fullKeys.filter { it.second.equals(text) }
 
@@ -17,8 +16,8 @@ object KeyRequest {
       val add = AddDialog(project, null)
       add.extractedText = text
       add.setCallback { keyed ->
-        run {
-          addToClipboard(keyed.key)
+        run{
+          callback.consume(keyed.key)
         }
       }
       add.showAndHandle()
@@ -31,17 +30,11 @@ object KeyRequest {
         .setCancelOnWindowDeactivation(false)
         .setItemChosenCallback { keyed ->
           run {
-            addToClipboard(keyed.first)
+            callback.consume(keyed.first)
           }
         }
         .createPopup()
       popup.showInBestPositionFor(editor)
     }
-  }
-
-  private fun addToClipboard(s: String) {
-    val clipboard = Toolkit.getDefaultToolkit().systemClipboard
-    val selection = StringSelection("t(\"$s\")")
-    clipboard.setContents(selection, selection)
   }
 }

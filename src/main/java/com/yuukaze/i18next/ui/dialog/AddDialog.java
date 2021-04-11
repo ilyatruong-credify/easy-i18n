@@ -45,7 +45,10 @@ public class AddDialog extends LocaleDialogBase {
         int code = prepare().show();
 
         if (code == DialogWrapper.OK_EXIT_CODE) {
-            callback.accept(saveTranslation());
+            KeyedTranslation result = saveTranslation();
+            if (callback != null) {
+                callback.accept(result);
+            }
         }
     }
 

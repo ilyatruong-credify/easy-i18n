@@ -9,6 +9,7 @@ import com.yuukaze.i18next.model.KeyedTranslation;
 import com.yuukaze.i18next.service.DataStore;
 import com.yuukaze.i18next.ui.dialog.LocaleRecord;
 import com.yuukaze.i18next.ui.dialog.descriptor.DeleteActionDescriptor;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import javax.swing.*;
@@ -21,15 +22,17 @@ import java.util.function.Consumer;
 public abstract class LocaleDialogBase {
     protected final Project project;
 
-    public Consumer<KeyedTranslation> getCallback() {
+    public @Nullable
+    Consumer<KeyedTranslation> getCallback() {
         return callback;
     }
 
-    public void setCallback(Consumer<KeyedTranslation> callback) {
+    public void setCallback(@NotNull Consumer<KeyedTranslation> callback) {
         this.callback = callback;
     }
 
-    protected Consumer<KeyedTranslation> callback;
+    protected @Nullable
+    Consumer<KeyedTranslation> callback;
 
     @SuppressWarnings("FieldCanBeLocal")
     protected JBTextField keyTextField;
@@ -64,8 +67,8 @@ public abstract class LocaleDialogBase {
 
         JPanel valuePanel = new VerticalPanel();
         valueTextFields = new HashMap<>();
-        for(String locale : DataStore.getInstance(project).getTranslations().getLocales()) {
-            LocaleRecord rec = new LocaleRecord(locale,project,valueTextFields);
+        for (String locale : DataStore.getInstance(project).getTranslations().getLocales()) {
+            LocaleRecord rec = new LocaleRecord(locale, project, valueTextFields);
             rec.getLocaleText().setText(this.getTranslation(locale));
             rec.insertTo(valuePanel);
         }

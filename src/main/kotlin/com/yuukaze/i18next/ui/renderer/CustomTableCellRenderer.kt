@@ -11,7 +11,7 @@ import javax.swing.table.DefaultTableCellRenderer
 private object DetectRegexes {
   val variable = Regex("\\{\\{[a-z]+}}")
   val containsHTML =
-    Regex("</?\\w+((\\s+\\w+(\\s*=\\s*(?:\".*?\"|'.*?'|[^'\">\\s]+))?)+\\s*|\\s*)/?>");
+    Regex("</?\\w+((\\s+\\w+(\\s*=\\s*(?:\".*?\"|'.*?'|[^'\">\\s]+))?)+\\s*|\\s*)/?>")
 }
 
 /**
@@ -39,7 +39,7 @@ class CustomTableCellRenderer : DefaultTableCellRenderer() {
       val icon = ListIcon(
         listOf(
           detectValuableEntry(row, table!!),
-          detectContainsHTMLEntry(row, table!!)
+          detectContainsHTMLEntry(row, table)
         )
       )
       component.icon = icon

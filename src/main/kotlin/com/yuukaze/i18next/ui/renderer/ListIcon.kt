@@ -21,5 +21,6 @@ class ListIcon(private val icons: List<Icon>, private val hgap: Int) : Icon {
       .reduce { acc, iconWidth -> if (acc == 0) iconWidth else acc + hgap + iconWidth }
 
   override fun getIconHeight(): Int =
-    icons.map { icon -> icon.iconHeight }.reduce { acc, iconHeight -> max(acc, iconHeight) }
+    icons.map { icon -> icon.iconHeight }
+      .reduce { acc, iconHeight -> max(acc, iconHeight) }
 }

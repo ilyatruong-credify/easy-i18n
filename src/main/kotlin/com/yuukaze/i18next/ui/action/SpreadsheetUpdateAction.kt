@@ -10,7 +10,8 @@ import com.yuukaze.i18next.service.SpreadsheetExecutorBase
 import java.io.IOException
 import java.util.stream.Collectors
 
-class SpreadsheetUpdateAction : AnAction("Update from Spreadsheet", null, AllIcons.Actions.Download) {
+class SpreadsheetUpdateAction :
+  AnAction("Update from Spreadsheet", null, AllIcons.Actions.Download) {
   override fun actionPerformed(e: AnActionEvent) {
     val executor: SpreadsheetExecutorBase = Executor(e.project)
     executor.doAction()
@@ -20,7 +21,8 @@ class SpreadsheetUpdateAction : AnAction("Update from Spreadsheet", null, AllIco
     override fun run() {
       try {
         val result =
-          synchronizer.sheetService!!.spreadsheets().values()[spreadsheetId, SPREADSHEET_RANGE].execute()
+          synchronizer.sheetService!!.spreadsheets()
+            .values()[spreadsheetId, SPREADSHEET_RANGE].execute()
         val values = result.getValues()
 
 //                List<String> locales = values.get(0).stream().skip(1).map(o -> (String) o).collect(Collectors.toList());
@@ -32,13 +34,17 @@ class SpreadsheetUpdateAction : AnAction("Update from Spreadsheet", null, AllIco
           val messages = childrenNode.value
           for (index in locales.indices) {
             val locale = locales[index]
-            val translatedText = if (index >= row.size - 1) "" else row[index + 1].toString()
+            val translatedText =
+              if (index >= row.size - 1) "" else row[index + 1].toString()
             messages[locale] = translatedText
           }
         }
         println(translations.nodes.children.size)
         DataStore.getInstance(project).processUpdate(null)
-        Notifier.notifySuccess(project, "Successfully update translation from Spreadsheet")
+        Notifier.notifySuccess(
+          project,
+          "Successfully update translation from Spreadsheet"
+        )
       } catch (e: IOException) {
         e.printStackTrace()
       }
