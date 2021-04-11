@@ -8,7 +8,7 @@ import com.yuukaze.i18next.service.DataStore
 import com.yuukaze.i18next.ui.dialog.AddDialog
 
 object KeyRequest {
-  fun key(project: Project, text: String, editor: Editor,callback: Consumer<String>) {
+  fun manipulateTranslationKey(project: Project, text: String, editor: Editor, callback: Consumer<String>) {
     val translations = DataStore.getInstance(project).translations
     val fullKeys = translations.fullKeys.filter { it.second.equals(text) }
 

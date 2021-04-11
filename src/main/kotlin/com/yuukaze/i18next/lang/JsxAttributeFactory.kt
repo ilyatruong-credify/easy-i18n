@@ -29,7 +29,10 @@ internal class JsxAttributeExtractor : JsxTranslationExtractorBase() {
       .value!!
 
   override fun textRange(element: PsiElement): TextRange =
-    PsiTreeUtil.getParentOfType(element, XmlAttribute::class.java)!!.textRange
+    PsiTreeUtil.getParentOfType(
+      element,
+      XmlAttribute::class.java
+    )!!.valueElement!!.textRange
 
   override fun template(element: PsiElement): (argument: String) -> String =
     { "{i18n.t($it)}" }
