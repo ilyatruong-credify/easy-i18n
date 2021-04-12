@@ -14,26 +14,25 @@ class JsxAttributeFactory : LanguageFactory {
     JsxAttributeExtractor()
 }
 
-internal class JsxAttributeExtractor : JsxTranslationExtractorBase() {
+open class JsxAttributeExtractor : JsxTranslationExtractorBase() {
   override fun canExtract(element: PsiElement): Boolean =
-    super.canExtract(element) && PsiTreeUtil.getParentOfType(
-      element,
-      XmlAttribute::class.java
-    ).toBoolean()
+    super.canExtract(element) && element.getAttribute().toBoolean()
 
   override fun isExtracted(element: PsiElement): Boolean =
     element.isJs() && JSPatterns.jsArgument("t", 0).accepts(element.parent)
 
   override fun text(element: PsiElement): String =
-    PsiTreeUtil.getParentOfType(element, XmlAttribute::class.java)!!
+    element.getAttribute()!!
       .value!!
 
   override fun textRange(element: PsiElement): TextRange =
-    PsiTreeUtil.getParentOfType(
-      element,
-      XmlAttribute::class.java
-    )!!.valueElement!!.textRange
+    element.getAttribute()!!.valueElement!!.textRange
 
   override fun template(element: PsiElement): (argument: String) -> String =
-    { "{i18n.t($it)}" }
+    { "{t($it)}" }
+
+  fun PsiElement.getAttribute(): XmlAttribute? = PsiTreeUtil.getParentOfType(
+    this,
+    XmlAttribute::class.java
+  )
 }

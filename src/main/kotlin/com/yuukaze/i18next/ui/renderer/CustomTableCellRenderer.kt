@@ -8,7 +8,7 @@ import javax.swing.JLabel
 import javax.swing.JTable
 import javax.swing.table.DefaultTableCellRenderer
 
-private object DetectRegexes {
+object DetectRegexes {
   val variable = Regex("\\{\\{[a-z]+}}")
   val containsHTML =
     Regex("</?\\w+((\\s+\\w+(\\s*=\\s*(?:\".*?\"|'.*?'|[^'\">\\s]+))?)+\\s*|\\s*)/?>")

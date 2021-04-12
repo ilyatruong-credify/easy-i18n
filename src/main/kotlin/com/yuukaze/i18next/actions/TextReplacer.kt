@@ -13,6 +13,7 @@ import com.intellij.psi.PsiElement
 import com.yuukaze.i18next.actions.KeyRequest.manipulateTranslationKey
 import com.yuukaze.i18next.factory.TranslationExtractor
 import com.yuukaze.i18next.service.SettingsService
+import com.yuukaze.i18next.utils.memoize
 import com.yuukaze.i18next.utils.whenMatches
 import java.awt.Toolkit
 import java.awt.datatransfer.StringSelection
@@ -34,7 +35,7 @@ class TextReplacer : PsiElementBaseIntentionAction(), IntentionAction {
       .invokeLater { doInvoke(editor, project, element) }
   }
 
-  private fun getExtractor(e: PsiElement): TranslationExtractor =
+  private fun _getExtractor(e: PsiElement): TranslationExtractor =
     SettingsService.getInstance(e.project)
       .mainFactory()
       .translationExtractors()
@@ -43,12 +44,17 @@ class TextReplacer : PsiElementBaseIntentionAction(), IntentionAction {
       ?.firstOrNull()
       ?: DefaultExtractor()
 
+  private val getExtractor = ::_getExtractor.memoize(1024)
+
 
   override fun isAvailable(
     project: Project,
     editor: Editor,
     element: PsiElement
-  ): Boolean = getExtractor(element).canExtract(element)
+  ): Boolean =
+    editor.selectionModel.hasSelection() || getExtractor(element).canExtract(
+      element
+    )
 
   override fun getFamilyName(): @IntentionFamilyName String {
     return "EasyI18n"

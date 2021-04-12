@@ -1,43 +1,42 @@
 package com.yuukaze.i18next.lang
 
 import com.intellij.lang.javascript.patterns.JSPatterns
+import com.intellij.lang.javascript.psi.ecma6.JSStringTemplateExpression
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.util.elementType
-import com.intellij.psi.xml.XmlTag
-import com.intellij.psi.xml.XmlTokenType
+import com.intellij.psi.xml.XmlAttribute
 import com.yuukaze.i18next.factory.LanguageFactory
 import com.yuukaze.i18next.factory.TranslationExtractor
+import com.yuukaze.i18next.utils.toBoolean
 
-class JsxTextFactory : LanguageFactory {
+class JsxAttributeWithStringTemplateFactory : LanguageFactory {
   override fun translationExtractor(): TranslationExtractor =
-    JsxTextExtractor()
+    JsxAttributeExtractor()
 }
 
-internal class JsxTextExtractor : JsxTranslationExtractorBase() {
+internal class JsxAttributeWithStringTemplateExtractor :
+  JsxAttributeExtractor() {
   override fun canExtract(element: PsiElement): Boolean =
-    super.canExtract(element) && element.elementType == XmlTokenType.XML_DATA_CHARACTERS
+    super.canExtract(element) && (element.getAttribute()!!
+      .getInnerStringTemplate()).toBoolean()
 
   override fun isExtracted(element: PsiElement): Boolean =
     element.isJs() && JSPatterns.jsArgument("t", 0).accepts(element.parent)
 
   override fun text(element: PsiElement): String =
-    PsiTreeUtil.getParentOfType(element, XmlTag::class.java)!!
-      .value
-      .textElements.joinToString(" ") { it.text }
+    PsiTreeUtil.getParentOfType(element, XmlAttribute::class.java)!!
+      .value!!
 
   override fun textRange(element: PsiElement): TextRange =
-    PsiTreeUtil.getParentOfType(element, XmlTag::class.java)!!
-      .value
-      .textElements
-      .let {
-        TextRange(
-          it.first().textRange.startOffset,
-          it.last().textRange.endOffset
-        )
-      }
+    PsiTreeUtil.getParentOfType(
+      element,
+      XmlAttribute::class.java
+    )!!.valueElement!!.textRange
 
   override fun template(element: PsiElement): (argument: String) -> String =
     { "{t($it)}" }
+
+  fun PsiElement.getInnerStringTemplate(): JSStringTemplateExpression? =
+    PsiTreeUtil.findChildOfType(this, JSStringTemplateExpression::class.java)
 }

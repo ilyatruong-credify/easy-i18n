@@ -6,6 +6,7 @@ import com.intellij.openapi.components.State
 import com.intellij.openapi.project.Project
 import com.yuukaze.i18next.factory.I18nAppFactory
 import com.yuukaze.i18next.lang.JsxAttributeFactory
+import com.yuukaze.i18next.lang.JsxAttributeWithStringTemplateFactory
 import com.yuukaze.i18next.lang.JsxTextFactory
 import com.yuukaze.i18next.model.SettingsState
 
@@ -43,7 +44,11 @@ class SettingsService : PersistentStateComponent<SettingsState> {
   fun mainFactory(): I18nAppFactory =
     I18nAppFactory(
       listOf(
-        listOf(JsxTextFactory(), JsxAttributeFactory())
+        listOf(
+          JsxTextFactory(),
+          JsxAttributeWithStringTemplateFactory(),
+          JsxAttributeFactory()
+        )
       ).flatten()
     )
 }
