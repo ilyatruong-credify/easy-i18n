@@ -27,9 +27,9 @@ object KeyRequest {
     if (fullKeys.isEmpty()) {
       val add = AddDialog(project, null)
       add.extractedText = text
-      add.setCallback { keyed ->
+      add.callback = {
         run {
-          callback.consume(keyed.key)
+          callback.consume(it.key)
         }
       }
       add.showAndHandle()
