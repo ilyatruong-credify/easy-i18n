@@ -15,26 +15,19 @@ import com.yuukaze.i18next.model.SettingsState
  * @author yuukaze
  */
 @State(name = "EasyI18nSettings")
-class SettingsService : PersistentStateComponent<SettingsState> {
+class EasyI18nSettingsService(private val project: Project) :
+  PersistentStateComponent<SettingsState> {
+
   private var state: SettingsState
+  val dataStore: DataStore = DataStore.getInstance(project)
+
+
   override fun getState(): SettingsState {
     return state
   }
 
   override fun loadState(state: SettingsState) {
     this.state = state
-  }
-
-  companion object {
-    @JvmStatic
-    fun getInstance(project: Project?): SettingsService {
-      ServiceManager.getService(
-        project!!, SettingsService::class.java
-      ).initializeComponent()
-      return ServiceManager.getService(
-        project, SettingsService::class.java
-      )
-    }
   }
 
   init {
@@ -52,3 +45,12 @@ class SettingsService : PersistentStateComponent<SettingsState> {
       ).flatten()
     )
 }
+
+fun <T : Project?> T.getEasyI18nService(): EasyI18nSettingsService =
+  ServiceManager.getService(this!!, EasyI18nSettingsService::class.java).let {
+    it.initializeComponent()
+    return it
+  }
+
+fun <T : Project?> T.getEasyI18nDataStore(): DataStore =
+  this.getEasyI18nService().dataStore

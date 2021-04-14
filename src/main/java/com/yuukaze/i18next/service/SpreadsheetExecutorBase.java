@@ -18,7 +18,7 @@ public abstract class SpreadsheetExecutorBase implements Runnable {
 
     public SpreadsheetExecutorBase(Project project) {
         this.project = project;
-        SettingsState state = SettingsService.getInstance(project).getState();
+        SettingsState state = project.getService(EasyI18nSettingsService.class).getState();
         spreadsheetId = state.getSpreadSheetId();
         SPREADSHEET_RANGE = state.getSpreadSheetTab() + "!A:D";
         try {

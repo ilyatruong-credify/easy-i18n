@@ -5,7 +5,7 @@ import com.intellij.openapi.ui.DialogWrapper;
 import com.yuukaze.i18next.model.KeyedTranslation;
 import com.yuukaze.i18next.model.TranslationCreate;
 import com.yuukaze.i18next.service.DataStore;
-import com.yuukaze.i18next.service.SettingsService;
+import com.yuukaze.i18next.service.EasyI18nSettingsService;
 import com.yuukaze.i18next.ui.components.LocaleDialogBase;
 import org.jetbrains.annotations.Nullable;
 
@@ -26,7 +26,7 @@ public class AddDialog extends LocaleDialogBase {
     public AddDialog(Project project, String preKey) {
         super(project, ResourceBundle.getBundle("messages").getString("action.add"));
         this.preKey = preKey;
-        this.previewLocale = SettingsService.getInstance(project).getState().getPreviewLocale();
+        this.previewLocale = project.getService(EasyI18nSettingsService.class).getState().getPreviewLocale();
     }
 
     @Nullable

@@ -6,7 +6,7 @@ import com.intellij.openapi.ui.DialogBuilder;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.yuukaze.i18next.model.SettingsState;
 import com.yuukaze.i18next.service.DataStore;
-import com.yuukaze.i18next.service.SettingsService;
+import com.yuukaze.i18next.service.EasyI18nSettingsService;
 
 import java.util.ResourceBundle;
 
@@ -26,7 +26,7 @@ public class SettingsDialog {
     }
 
     public void showAndHandle() {
-        SettingsState state = SettingsService.getInstance(project).getState();
+        SettingsState state = project.getService(EasyI18nSettingsService.class).getState();
 
         if (prepare(state).show() == DialogWrapper.OK_EXIT_CODE) {
             settingsForm.pushDataIntoState(state);

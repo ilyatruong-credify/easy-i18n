@@ -3,7 +3,7 @@ package com.yuukaze.i18next.ui.dialog;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBTextField;
-import com.yuukaze.i18next.service.SettingsService;
+import com.yuukaze.i18next.service.EasyI18nSettingsService;
 
 import javax.swing.*;
 import java.awt.event.FocusEvent;
@@ -25,7 +25,7 @@ public class LocaleRecord implements FocusListener {
         localeLabel.setLabelFor(localeText);
         this.valueTextFields = valueTextFields;
         localeText.addFocusListener(this);
-        valueTextFields.put(locale,localeText);
+        valueTextFields.put(locale, localeText);
     }
 
     public JBLabel getLocaleLabel() {
@@ -42,7 +42,7 @@ public class LocaleRecord implements FocusListener {
 
     @Override
     public void focusGained(FocusEvent e) {
-        String defaultLocale = SettingsService.getInstance(project).getState().getPreviewLocale();
+        String defaultLocale = project.getService(EasyI18nSettingsService.class).getState().getPreviewLocale();
         if (!defaultLocale.equals(locale) && localeText.getText().length() == 0) {
             localeText.setText(valueTextFields.get(defaultLocale).getText());
             localeText.selectAll();

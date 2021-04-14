@@ -12,7 +12,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import com.yuukaze.i18next.actions.KeyRequest.manipulateTranslationKey
 import com.yuukaze.i18next.factory.TranslationExtractor
-import com.yuukaze.i18next.service.SettingsService
+import com.yuukaze.i18next.service.getEasyI18nService
 import com.yuukaze.i18next.utils.memoize
 import com.yuukaze.i18next.utils.whenMatches
 import java.awt.Toolkit
@@ -35,8 +35,9 @@ class TextReplacer : PsiElementBaseIntentionAction(), IntentionAction {
       .invokeLater { doInvoke(editor, project, element) }
   }
 
+  @Suppress("FunctionName")
   private fun _getExtractor(e: PsiElement): TranslationExtractor =
-    SettingsService.getInstance(e.project)
+    e.project.getEasyI18nService()
       .mainFactory()
       .translationExtractors()
       .filter { it.canExtract(e) }

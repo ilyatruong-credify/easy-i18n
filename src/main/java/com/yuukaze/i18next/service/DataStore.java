@@ -14,6 +14,7 @@ import java.util.function.Consumer;
 
 /**
  * Singleton service to manage localized messages.
+ *
  * @author marhali
  */
 public class DataStore {
@@ -22,6 +23,7 @@ public class DataStore {
 
     private final Project project;
     private final List<DataSynchronizer> synchronizer;
+//    private final TreeModelTranslator treeModel;
 
     private Translations translations;
     private String searchQuery;
@@ -33,10 +35,13 @@ public class DataStore {
     private DataStore(Project project) {
         this.project = project;
         this.synchronizer = new ArrayList<>();
+//        this.treeModel = new TreeModelTranslator(project);
+//        this.addSynchronizer(treeModel);
     }
 
     /**
      * Registers a new synchronizer which will receive {@link #translations} updates.
+     *
      * @param synchronizer Synchronizer. See {@link DataSynchronizer}
      */
     public void addSynchronizer(DataSynchronizer synchronizer) {
@@ -47,9 +52,9 @@ public class DataStore {
      * Loads all translations from disk and overrides current {@link #translations} state.
      */
     public void reloadFromDisk() {
-        String localesPath = SettingsService.getInstance(project).getState().getLocalesPath();
+        String localesPath = project.getService(EasyI18nSettingsService.class).getState().getLocalesPath();
 
-        if(localesPath == null || localesPath.isEmpty()) {
+        if (localesPath == null || localesPath.isEmpty()) {
             translations = new Translations(new ArrayList<>(),
                     new LocalizedNode(LocalizedNode.ROOT_KEY, new ArrayList<>()));
 
@@ -57,7 +62,7 @@ public class DataStore {
             TranslatorIO io = IOUtil.determineFormat(localesPath);
 
             io.read(localesPath, (translations) -> {
-                if(translations != null) { // Read was successful
+                if (translations != null) { // Read was successful
                     this.translations = translations;
 
                     // Propagate changes
@@ -74,12 +79,13 @@ public class DataStore {
 
     /**
      * Saves the current translation state to disk. See {@link TranslatorIO#save(Translations, String, Consumer)}
+     *
      * @param callback Complete callback. Indicates if operation was successful(true) or not
      */
     public void saveToDisk(@NotNull Consumer<Boolean> callback) {
-        String localesPath = SettingsService.getInstance(project).getState().getLocalesPath();
+        String localesPath = project.getService(EasyI18nSettingsService.class).getState().getLocalesPath();
 
-        if(localesPath == null || localesPath.isEmpty()) { // Cannot save without valid path
+        if (localesPath == null || localesPath.isEmpty()) { // Cannot save without valid path
             return;
         }
 
@@ -89,6 +95,7 @@ public class DataStore {
 
     /**
      * Propagates provided search string to all synchronizer to display only relevant keys
+     *
      * @param fullPath Full i18n key (e.g. user.username.title). Can be null to display all keys
      */
     public void searchByKey(@Nullable String fullPath) {
@@ -98,36 +105,37 @@ public class DataStore {
 
     /**
      * Processes the provided update. Updates translation instance and propagates changes. See {@link DataSynchronizer}
+     *
      * @param update The update to process. For more information see {@link TranslationUpdate}
      */
     public void processUpdate(TranslationUpdate update) {
-        if(update!=null){
-            if(update.isDeletion() || update.isKeyChange()) { // Delete origin i18n key
+        if (update != null) {
+            if (update.isDeletion() || update.isKeyChange()) { // Delete origin i18n key
                 String originKey = update.getOrigin().getKey();
                 List<String> sections = TranslationsUtil.getSections(originKey);
                 String nodeKey = sections.remove(sections.size() - 1); // Remove last node, which needs to be removed by parent
 
                 LocalizedNode node = translations.getNodes();
-                for(String section : sections) {
-                    if(node == null) { // Might be possible on multi-delete
+                for (String section : sections) {
+                    if (node == null) { // Might be possible on multi-delete
                         break;
                     }
 
                     node = node.getChildren(section);
                 }
 
-                if(node != null) { // Only remove if parent exists. Might be already deleted on multi-delete
+                if (node != null) { // Only remove if parent exists. Might be already deleted on multi-delete
                     node.removeChildren(nodeKey);
 
                     // Parent is empty now, we need to remove it as well (except root)
-                    if(node.getChildren().isEmpty() && !node.getKey().equals(LocalizedNode.ROOT_KEY)) {
+                    if (node.getChildren().isEmpty() && !node.getKey().equals(LocalizedNode.ROOT_KEY)) {
                         processUpdate(new TranslationDelete(new KeyedTranslation(
                                 TranslationsUtil.sectionsToFullPath(sections), null)));
                     }
                 }
             }
 
-            if(!update.isDeletion()) { // Recreate with changed val / create
+            if (!update.isDeletion()) { // Recreate with changed val / create
                 LocalizedNode node = translations.getOrCreateNode(update.getChange().getKey());
                 node.setValue(update.getChange().getTranslations());
             }
@@ -136,7 +144,7 @@ public class DataStore {
         // Persist changes and propagate them on success
         System.out.println(translations.getNodes().getChildren().size());
         saveToDisk(success -> {
-            if(success) {
+            if (success) {
                 synchronizer.forEach(synchronizer -> synchronizer.synchronize(translations, searchQuery));
             }
         });

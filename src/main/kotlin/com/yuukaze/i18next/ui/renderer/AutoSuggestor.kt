@@ -2,6 +2,7 @@ package com.yuukaze.i18next.ui.renderer
 
 import com.intellij.openapi.ui.JBPopupMenu
 import com.intellij.ui.components.JBList
+import com.yuukaze.i18next.utils.getPreviousKeyPart
 import java.awt.Point
 import java.awt.event.KeyAdapter
 import java.awt.event.KeyEvent
@@ -13,7 +14,6 @@ import javax.swing.event.DocumentEvent
 import javax.swing.event.DocumentListener
 import javax.swing.text.BadLocationException
 import javax.swing.text.JTextComponent
-import javax.swing.text.Utilities
 
 /**
  * @see <i>https://www.logicbig.com/tutorials/java-swing/text-suggestion-component.html</i>
@@ -25,7 +25,7 @@ interface SuggestionClient<C : JComponent> {
   fun getSuggestions(invoker: C): List<String>?
 }
 
-class SuggestionDropDownDecorator<C : JComponent>(
+class SuggestionDropDownDecorator<C : JComponent> private constructor(
   private val invoker: C,
   private val suggestionClient: SuggestionClient<C>
 ) {
@@ -33,6 +33,17 @@ class SuggestionDropDownDecorator<C : JComponent>(
   private var listComp: JList<String>? = null
   private lateinit var listModel: DefaultListModel<String>
   private var disableTextEvent = false
+
+  companion object {
+    fun <C : JComponent> decorate(
+      component: C,
+      suggestionClient: SuggestionClient<C>
+    ) {
+      val d = SuggestionDropDownDecorator(component, suggestionClient)
+      d.init()
+    }
+  }
+
   fun init() {
     initPopup()
     initSuggestionCompListener()
@@ -146,16 +157,6 @@ class SuggestionDropDownDecorator<C : JComponent>(
     }
   }
 
-  companion object {
-    fun <C : JComponent> decorate(
-      component: C,
-      suggestionClient: SuggestionClient<C>
-    ) {
-      val d = SuggestionDropDownDecorator(component, suggestionClient)
-      d.init()
-    }
-  }
-
 }
 
 class I18nKeyComponentSuggestionClient(private val suggestionProvider: (String) -> List<String>?) :
@@ -177,11 +178,10 @@ class I18nKeyComponentSuggestionClient(private val suggestionProvider: (String) 
   override fun setSelectedText(invoker: JTextComponent, selectedValue: String) {
     val cp = invoker.caretPosition
     try {
-      if (cp == 0 || invoker.getText(cp - 1, 1).trim().isEmpty()) {
+      if (cp == 0 || invoker.getText(cp - 1, 1).trim() == ".") {
         invoker.document.insertString(cp, selectedValue, null)
       } else {
-        val previousWordIndex: Int = Utilities.getPreviousWord(invoker, cp)
-        val text = invoker.getText(previousWordIndex, cp - previousWordIndex)
+        val text = getPreviousKeyPart(invoker, cp)
         if (selectedValue.startsWith(text)) {
           invoker.document.insertString(
             cp,
@@ -202,12 +202,12 @@ class I18nKeyComponentSuggestionClient(private val suggestionProvider: (String) 
       val cp = invoker.caretPosition
       if (cp != 0) {
         val text = invoker.getText(cp - 1, 1)
-        if (text.trim().isEmpty()) {
+        if (text.trim() == ".") {
           return null
         }
       }
-      val previousWordIndex: Int = Utilities.getPreviousWord(invoker, cp)
-      val text = invoker.getText(previousWordIndex, cp - previousWordIndex)
+      val text = getPreviousKeyPart(invoker, cp)
+      println(text)
       return suggestionProvider(text.trim())
     } catch (e: BadLocationException) {
       System.err.println(e)
