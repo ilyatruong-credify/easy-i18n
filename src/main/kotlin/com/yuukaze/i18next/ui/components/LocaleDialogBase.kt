@@ -7,6 +7,7 @@ import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.components.JBTextField
 import com.yuukaze.i18next.model.KeyedTranslation
 import com.yuukaze.i18next.service.DataStore
+import com.yuukaze.i18next.service.getEasyI18nDataStore
 import com.yuukaze.i18next.ui.dialog.LocaleRecord
 import com.yuukaze.i18next.ui.dialog.descriptor.DeleteActionDescriptor
 import com.yuukaze.i18next.ui.renderer.I18nKeyComponentSuggestionClient
@@ -34,8 +35,13 @@ abstract class LocaleDialogBase protected constructor(
   protected abstract fun getTranslation(locale: String?): String?
 
   private fun getSuggestion(input: String): List<String>? {
+    val translations = project.getEasyI18nDataStore().translations
     if (input.isEmpty()) return null;
-    return listOf("foo", "bar", "baz").filter { it.startsWith(input) }
+    return translations.treeKeys.children.map { it.value }.filter {
+      it.startsWith(
+        input
+      )
+    }
   }
 
   private fun setupKeyAutoSuggestion(textField: JBTextField) {
