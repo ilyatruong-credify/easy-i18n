@@ -2,6 +2,7 @@ package com.yuukaze.i18next.ui.components
 
 import com.intellij.openapi.project.Project
 import com.intellij.ui.components.JBTextField
+import com.yuukaze.i18next.model.TreeNode
 import com.yuukaze.i18next.service.getEasyI18nDataStore
 import com.yuukaze.i18next.ui.renderer.I18nKeyComponentSuggestionClient
 import com.yuukaze.i18next.ui.renderer.SuggestionDropDownDecorator
@@ -18,12 +19,17 @@ class I18nAutoCompleteTextField private constructor() : JBTextField() {
 
   private fun getSuggestion(input: String): List<String>? {
     val translations = project.getEasyI18nDataStore().translations
-    if (input.isEmpty()) return null;
-    return translations.treeKeys.children.map { it.value }.filter {
-      it.startsWith(
-        input
-      )
-    }
+    if (text.isEmpty()) return null;
+    return translations.treeKeys.getNodeFromKeyString(
+      text
+    )
+      ?.children
+      ?.map { it.value }
+      ?.filter {
+        it.startsWith(
+          input
+        )
+      }
   }
 
   companion object {
@@ -32,5 +38,16 @@ class I18nAutoCompleteTextField private constructor() : JBTextField() {
         it.project = project;
         it
       }
+  }
+}
+
+internal fun TreeNode<String>.getNodeFromKeyString(key: String): TreeNode<String>? {
+  val parts = key.substringBeforeLast('.', "")
+    .split('.')
+    .filter { it.isNotEmpty() }
+  if (parts.isEmpty()) return this;
+  val that = this as? TreeNode<String>
+  return parts.fold(that) { node, part ->
+    node?.children?.find { it.value == part }
   }
 }

@@ -140,20 +140,17 @@ class SuggestionDropDownDecorator<C : JComponent> private constructor(
   private fun moveDown(keyEvent: KeyEvent) {
     if (popupMenu!!.isVisible && listModel.size > 0) {
       val selectedIndex = listComp!!.selectedIndex
-      if (selectedIndex < listModel.size) {
-        listComp!!.selectedIndex = selectedIndex + 1
-        keyEvent.consume()
-      }
+      listComp!!.selectedIndex = (selectedIndex + 1) % listModel.size()
+      keyEvent.consume()
     }
   }
 
   private fun moveUp(keyEvent: KeyEvent) {
     if (popupMenu!!.isVisible && listModel.size > 0) {
       val selectedIndex = listComp!!.selectedIndex
-      if (selectedIndex > 0) {
-        listComp!!.selectedIndex = selectedIndex - 1
-        keyEvent.consume()
-      }
+      listComp!!.selectedIndex =
+        (selectedIndex - 1).let { if (it < 0) it + listModel.size() else it }
+      keyEvent.consume()
     }
   }
 
@@ -164,7 +161,7 @@ class I18nKeyComponentSuggestionClient(private val suggestionProvider: (String) 
   override fun getPopupLocation(invoker: JTextComponent): Point? {
     val caretPosition = invoker.caretPosition
     try {
-      val rectangle2D: Rectangle2D = invoker.modelToView(caretPosition)
+      val rectangle2D: Rectangle2D = invoker.modelToView2D(caretPosition)
       return Point(
         rectangle2D.x.toInt(),
         (rectangle2D.y + rectangle2D.height).toInt()
@@ -203,12 +200,10 @@ class I18nKeyComponentSuggestionClient(private val suggestionProvider: (String) 
       if (cp != 0) {
         val text = invoker.getText(cp - 1, 1)
         if (text.trim() == ".") {
-          return null
+          return suggestionProvider("")
         }
       }
-      val text = getPreviousKeyPart(invoker, cp)
-      println(text)
-      return suggestionProvider(text.trim())
+      return suggestionProvider(getPreviousKeyPart(invoker, cp).trim())
     } catch (e: BadLocationException) {
       System.err.println(e)
     }

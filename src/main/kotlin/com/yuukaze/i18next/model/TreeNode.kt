@@ -1,7 +1,6 @@
 package com.yuukaze.i18next.model
 
-class TreeNode<T>(value: T) {
-  var value: T = value
+data class TreeNode<T>(var value: T) {
   var parent: TreeNode<T>? = null
 
   var children: MutableList<TreeNode<T>> = mutableListOf()
@@ -13,7 +12,7 @@ class TreeNode<T>(value: T) {
 
   override fun toString(): String {
     var s = "$value"
-    if (!children.isEmpty()) {
+    if (children.isNotEmpty()) {
       s += " {" + children.map { it.toString() } + " }"
     }
     return s
