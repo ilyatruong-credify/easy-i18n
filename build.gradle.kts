@@ -29,7 +29,8 @@ repositories {
     jcenter()
 }
 dependencies {
-    detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.15.0")
+    implementation("org.junit.jupiter:junit-jupiter:5.7.0")
+  detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.15.0")
     implementation("com.google.api-client:google-api-client:1.31.3")
     implementation("com.google.apis:google-api-services-sheets:v4-rev581-1.25.0")
     implementation("com.google.http-client:google-http-client:1.39.1")

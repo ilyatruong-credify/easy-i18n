@@ -1,42 +1,29 @@
-package com.yuukaze.i18next.ui.listener;
+package com.yuukaze.i18next.ui.listener
 
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.util.function.Consumer;
+import com.intellij.util.Consumer
+import java.awt.event.MouseEvent
+import java.awt.event.MouseListener
 
 /**
- * Popup click listener for awt {@link MouseListener}.
+ * Popup click listener for awt [MouseListener].
  * Emits consumer defined in constructor on popup open action.
  * @author marhali
  */
-public class PopupClickListener implements MouseListener {
-
-    private final Consumer<MouseEvent> callback;
-
-    public PopupClickListener(Consumer<MouseEvent> callback) {
-        this.callback = callback;
+class PopupClickListener(private val callback: Consumer<MouseEvent>) :
+  MouseListener {
+  override fun mouseClicked(e: MouseEvent) {}
+  override fun mousePressed(e: MouseEvent) {
+    if (e.isPopupTrigger) {
+      callback.consume(e)
     }
+  }
 
-    @Override
-    public void mouseClicked(MouseEvent e) {}
-
-    @Override
-    public void mousePressed(MouseEvent e) {
-        if(e.isPopupTrigger()) {
-            this.callback.accept(e);
-        }
+  override fun mouseReleased(e: MouseEvent) {
+    if (e.isPopupTrigger) {
+      callback.consume(e)
     }
+  }
 
-    @Override
-    public void mouseReleased(MouseEvent e) {
-        if(e.isPopupTrigger()) {
-            this.callback.accept(e);
-        }
-    }
-
-    @Override
-    public void mouseEntered(MouseEvent e) {}
-
-    @Override
-    public void mouseExited(MouseEvent e) {}
+  override fun mouseEntered(e: MouseEvent) {}
+  override fun mouseExited(e: MouseEvent) {}
 }
