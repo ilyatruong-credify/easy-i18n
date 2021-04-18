@@ -108,7 +108,7 @@ public class DataStore {
      *
      * @param update The update to process. For more information see {@link TranslationUpdate}
      */
-    public void processUpdate(TranslationUpdate update) {
+    public void processUpdate(@Nullable TranslationUpdate update) {
         if (update != null) {
             if (update.isDeletion() || update.isKeyChange()) { // Delete origin i18n key
                 String originKey = update.getOrigin().getKey();
@@ -142,7 +142,11 @@ public class DataStore {
         }
 
         // Persist changes and propagate them on success
-        System.out.println(translations.getNodes().getChildren().size());
+//        System.out.println(translations.getNodes().getChildren().size());
+        doSync();
+    }
+
+    public void doSync() {
         saveToDisk(success -> {
             if (success) {
                 synchronizer.forEach(synchronizer -> synchronizer.synchronize(translations, searchQuery));

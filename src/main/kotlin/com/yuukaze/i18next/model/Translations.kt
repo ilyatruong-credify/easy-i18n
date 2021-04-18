@@ -32,6 +32,9 @@ class Translations(val locales: List<String>, val nodes: LocalizedNode) {
       return keys
     }
 
+  val fullKeysWithoutPreview: List<String>
+    get() = fullKeys.map { it.first }
+
   private fun getFullKeys(
     parentFullPath: String,
     localizedNode: LocalizedNode
@@ -69,5 +72,12 @@ class Translations(val locales: List<String>, val nodes: LocalizedNode) {
         subNode.parent = parent
         parent.addChild(subNode)
       }
+  }
+
+  public fun changeKey(old: String, new: String) {
+    val oldNode = getNode(old) ?: throw Exception("$old not available");
+    val trans = oldNode.value;
+    getOrCreateNode(new).apply { this.value = trans }
+    this.nodes.removeChildren(old)
   }
 }

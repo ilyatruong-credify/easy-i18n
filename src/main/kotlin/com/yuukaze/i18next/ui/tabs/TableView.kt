@@ -12,19 +12,21 @@ import com.yuukaze.i18next.model.*
 import com.yuukaze.i18next.model.table.TableModelTranslator
 import com.yuukaze.i18next.service.DataStore
 import com.yuukaze.i18next.ui.components.RootKeyTree
+import com.yuukaze.i18next.ui.dialog.MigrateDialog
 import com.yuukaze.i18next.ui.listener.DeleteKeyListener
 import com.yuukaze.i18next.ui.listener.DoubleClickListener
 import com.yuukaze.i18next.ui.model.FilterUntranslatedModel
 import com.yuukaze.i18next.ui.renderer.CustomTableCellRenderer
 import com.yuukaze.i18next.ui.renderer.CustomTableHeaderCellRenderer
+import java.awt.event.ActionEvent
 import java.awt.event.MouseEvent
+import java.beans.PropertyChangeListener
 import java.util.*
+import javax.swing.Action
 import javax.swing.JPanel
 
 /**
  * Shows translation state as table.
- *
- * @author marhali
  */
 class TableView(private val project: Project?) : DataSynchronizer {
   val rootPanel: JPanel
@@ -38,10 +40,22 @@ class TableView(private val project: Project?) : DataSynchronizer {
   val table: JBTable = JBTable()
   private val filterUntranslated = FilterUntranslatedModel()
   private val popupMenu = JBPopupMenu().let {
-    it.add(JBMenuItem("Edit..."))
-    it.add(JBMenuItem("Migrate..."))
-    it.add(JBMenuItem("Delete"))
+    it.add(JBMenuItem(TableViewAction("Edit...", this::handleEdit)))
+    it.add(JBMenuItem(TableViewAction("Migrate...", this::handleMigrate)))
+    it.add(JBMenuItem(TableViewAction("Delete", this::handleDelete)))
     it
+  }
+
+  init {
+    table.emptyText.text =
+      ResourceBundle.getBundle("messages").getString("view.empty")
+    table.addKeyListener(DeleteKeyListener(handleDeleteKey()))
+    table.setDefaultRenderer(String::class.java, CustomTableCellRenderer())
+    table.componentPopupMenu = popupMenu
+    setupTableHeader()
+    val scrollPane = JBScrollPane(table)
+    scrollPane.border = CustomLineBorder(JBColor.border(), 0, 1, 0, 0)
+    rootKeyTree = RootKeyTree(project)
   }
 
   private fun setupTableHeader() {
@@ -100,15 +114,41 @@ class TableView(private val project: Project?) : DataSynchronizer {
     }
   }
 
-  init {
-    table.emptyText.text =
-      ResourceBundle.getBundle("messages").getString("view.empty")
-    table.addKeyListener(DeleteKeyListener(handleDeleteKey()))
-    table.setDefaultRenderer(String::class.java, CustomTableCellRenderer())
-    table.componentPopupMenu = popupMenu
-    setupTableHeader()
-    val scrollPane = JBScrollPane(table)
-    scrollPane.border = CustomLineBorder(JBColor.border(), 0, 1, 0, 0)
-    rootKeyTree = RootKeyTree(project)
+  private fun handleEdit() {
+    //TODO implement
+  }
+
+  private fun handleMigrate() {
+    MigrateDialog(project!!).showAndHandle()
+  }
+
+  private fun handleDelete() {
+    //TODO implement
+  }
+
+  internal class TableViewAction(
+    private val name: String,
+    val callback: () -> Unit
+  ) :
+    Action {
+    override fun actionPerformed(e: ActionEvent?) {
+      callback()
+    }
+
+    override fun getValue(key: String?): Any? = when (key) {
+      Action.NAME -> name
+      Action.MNEMONIC_KEY -> key[0].toInt()
+      else -> null
+    }
+
+    override fun putValue(key: String?, value: Any?) {}
+
+    override fun setEnabled(b: Boolean) {}
+
+    override fun isEnabled(): Boolean = true
+
+    override fun addPropertyChangeListener(listener: PropertyChangeListener?) {}
+
+    override fun removePropertyChangeListener(listener: PropertyChangeListener?) {}
   }
 }
