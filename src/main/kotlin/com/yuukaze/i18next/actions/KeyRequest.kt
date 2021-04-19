@@ -8,7 +8,7 @@ import com.yuukaze.i18next.model.KeyedTranslation
 import com.yuukaze.i18next.model.getKeyedFromPair
 import com.yuukaze.i18next.service.DataStore
 import com.yuukaze.i18next.ui.dialog.AddDialog
-import com.yuukaze.i18next.ui.renderer.DetectRegexes
+import com.yuukaze.i18next.ui.renderer.I18nDetectRegexes
 
 
 object KeyRequest {
@@ -21,7 +21,7 @@ object KeyRequest {
     val translations = DataStore.getInstance(project).translations
     val fullKeys = translations.fullKeys.filter {
       when {
-        DetectRegexes.variable.containsMatchIn(text) -> true
+        I18nDetectRegexes.variable.containsMatchIn(text) -> true
         else -> it.second.equals(text)
       }
     }

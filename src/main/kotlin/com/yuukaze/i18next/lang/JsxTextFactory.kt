@@ -9,6 +9,7 @@ import com.intellij.psi.xml.XmlTag
 import com.intellij.psi.xml.XmlTokenType
 import com.yuukaze.i18next.factory.LanguageFactory
 import com.yuukaze.i18next.factory.TranslationExtractor
+import com.yuukaze.i18next.model.KeyedTranslation
 
 class JsxTextFactory : LanguageFactory {
   override fun translationExtractor(): TranslationExtractor =
@@ -38,6 +39,6 @@ internal class JsxTextExtractor : JsxTranslationExtractorBase() {
         )
       }
 
-  override fun template(element: PsiElement): (argument: String) -> String =
+  override fun template(element: PsiElement): (argument: KeyedTranslation) -> String =
     { "{t($it)}" }
 }

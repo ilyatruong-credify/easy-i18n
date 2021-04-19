@@ -8,6 +8,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.xml.XmlAttribute
 import com.yuukaze.i18next.factory.LanguageFactory
 import com.yuukaze.i18next.factory.TranslationExtractor
+import com.yuukaze.i18next.model.KeyedTranslation
 import com.yuukaze.i18next.utils.toBoolean
 
 class JsxAttributeWithStringTemplateFactory : LanguageFactory {
@@ -34,7 +35,7 @@ internal class JsxAttributeWithStringTemplateExtractor :
       XmlAttribute::class.java
     )!!.valueElement!!.textRange
 
-  override fun template(element: PsiElement): (argument: String) -> String =
+  override fun template(element: PsiElement): (argument: KeyedTranslation) -> String =
     { "{t($it)}" }
 
   fun PsiElement.getInnerStringTemplate(): JSStringTemplateExpression? =

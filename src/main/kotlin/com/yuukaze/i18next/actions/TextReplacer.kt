@@ -106,7 +106,7 @@ class TextReplacer : PsiElementBaseIntentionAction(), IntentionAction {
           document.replaceString(
             range.startOffset,
             range.endOffset,
-            template("'${key.key}'")
+            template(key)
           )
         }
       },

@@ -3,6 +3,7 @@ package com.yuukaze.i18next.factory
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
+import com.yuukaze.i18next.model.KeyedTranslation
 
 interface TranslationExtractor {
 
@@ -29,7 +30,6 @@ interface TranslationExtractor {
   /**
    * Get template to substitute translation with
    */
-  fun template(element: PsiElement): (argument: String) -> String = {"i18n.t($it)"}
-
+  fun template(element: PsiElement): (argument: KeyedTranslation) -> String = {"i18n.t(${it.key})"}
   fun postProcess(editor: Editor, offset: Int) {}
 }

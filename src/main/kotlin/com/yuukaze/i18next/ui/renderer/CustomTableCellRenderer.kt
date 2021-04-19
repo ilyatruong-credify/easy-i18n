@@ -8,8 +8,8 @@ import javax.swing.JLabel
 import javax.swing.JTable
 import javax.swing.table.DefaultTableCellRenderer
 
-object DetectRegexes {
-  val variable = Regex("\\{\\{[a-z]+}}")
+object I18nDetectRegexes {
+  val variable = Regex("\\{\\{([A-Za-z]+)}}")
   val containsHTML =
     Regex("</?\\w+((\\s+\\w+(\\s*=\\s*(?:\".*?\"|'.*?'|[^'\">\\s]+))?)+\\s*|\\s*)/?>")
 }
@@ -65,11 +65,11 @@ class CustomTableCellRenderer : DefaultTableCellRenderer() {
 
   private fun detectValuableEntry(row: Int, table: JTable): Icon {
     val value = table.getValueAt(row, 1) as String
-    return if (DetectRegexes.variable.containsMatchIn(value)) AllIcons.Nodes.Variable else AllIcons.Nodes.EmptyNode
+    return if (I18nDetectRegexes.variable.containsMatchIn(value)) AllIcons.Nodes.Variable else AllIcons.Nodes.EmptyNode
   }
 
   private fun detectContainsHTMLEntry(row: Int, table: JTable): Icon {
     val value = table.getValueAt(row, 1) as String
-    return if (DetectRegexes.containsHTML.containsMatchIn(value)) AllIcons.Xml.Html_id else AllIcons.Nodes.EmptyNode
+    return if (I18nDetectRegexes.containsHTML.containsMatchIn(value)) AllIcons.Xml.Html_id else AllIcons.Nodes.EmptyNode
   }
 }
