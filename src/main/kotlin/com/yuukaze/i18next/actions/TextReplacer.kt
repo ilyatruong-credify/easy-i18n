@@ -12,6 +12,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import com.yuukaze.i18next.actions.KeyRequest.manipulateTranslationKey
 import com.yuukaze.i18next.factory.TranslationExtractor
+import com.yuukaze.i18next.model.KeyedTranslation
 import com.yuukaze.i18next.service.getEasyI18nService
 import com.yuukaze.i18next.utils.memoize
 import com.yuukaze.i18next.utils.whenMatches
@@ -25,6 +26,7 @@ internal class DefaultExtractor : TranslationExtractor {
   override fun isExtracted(element: PsiElement): Boolean = false
 }
 
+@Suppress("IntentionDescriptionNotFoundInspection")
 class TextReplacer : PsiElementBaseIntentionAction(), IntentionAction {
   override fun getText(): @IntentionName String {
     return "I18n-ize..."
@@ -35,8 +37,7 @@ class TextReplacer : PsiElementBaseIntentionAction(), IntentionAction {
       .invokeLater { doInvoke(editor, project, element) }
   }
 
-  @Suppress("FunctionName")
-  private fun _getExtractor(e: PsiElement): TranslationExtractor =
+  private val getExtractor = { e: PsiElement ->
     e.project.getEasyI18nService()
       .mainFactory()
       .translationExtractors()
@@ -44,8 +45,7 @@ class TextReplacer : PsiElementBaseIntentionAction(), IntentionAction {
       .whenMatches { extractors -> !extractors.any { it.isExtracted(e) } }
       ?.firstOrNull()
       ?: DefaultExtractor()
-
-  private val getExtractor = ::_getExtractor.memoize(1024)
+  }.memoize(1024)
 
 
   override fun isAvailable(
@@ -82,14 +82,14 @@ class TextReplacer : PsiElementBaseIntentionAction(), IntentionAction {
     }
   }
 
-  private fun addToClipboard(s: String) {
+  private fun addToClipboard(s: KeyedTranslation) {
     val clipboard = Toolkit.getDefaultToolkit().systemClipboard
-    val selection = StringSelection("t(\"$s\")")
+    val selection = StringSelection("t(\"${s.key}\")")
     clipboard.setContents(selection, selection)
   }
 
   private fun replaceFromPsi(
-    key: String,
+    key: KeyedTranslation,
     editor: Editor,
     element: PsiElement,
     extractor: TranslationExtractor
@@ -102,10 +102,11 @@ class TextReplacer : PsiElementBaseIntentionAction(), IntentionAction {
       element.project,
       {
         ApplicationManager.getApplication().runWriteAction {
+          @Suppress("IntentionDescriptionNotFoundInspection")
           document.replaceString(
             range.startOffset,
             range.endOffset,
-            template("'${key}'")
+            template("'${key.key}'")
           )
         }
       },

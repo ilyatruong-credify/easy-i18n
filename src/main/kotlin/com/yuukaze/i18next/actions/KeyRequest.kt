@@ -4,6 +4,8 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.util.Consumer
+import com.yuukaze.i18next.model.KeyedTranslation
+import com.yuukaze.i18next.model.getKeyedFromPair
 import com.yuukaze.i18next.service.DataStore
 import com.yuukaze.i18next.ui.dialog.AddDialog
 import com.yuukaze.i18next.ui.renderer.DetectRegexes
@@ -14,7 +16,7 @@ object KeyRequest {
     project: Project,
     text: String,
     editor: Editor,
-    callback: Consumer<String>
+    callback: Consumer<KeyedTranslation>
   ) {
     val translations = DataStore.getInstance(project).translations
     val fullKeys = translations.fullKeys.filter {
@@ -29,7 +31,7 @@ object KeyRequest {
       add.extractedText = text
       add.callback = {
         run {
-          callback.consume(it.key)
+          callback.consume(it)
         }
       }
       add.showAndHandle()
@@ -41,9 +43,9 @@ object KeyRequest {
           .setResizable(false)
           .setRequestFocus(true)
           .setCancelOnWindowDeactivation(false)
-          .setItemChosenCallback { keyed ->
+          .setItemChosenCallback {
             run {
-              callback.consume(keyed.first)
+              callback.consume(project.getKeyedFromPair(it))
             }
           }
           .createPopup()

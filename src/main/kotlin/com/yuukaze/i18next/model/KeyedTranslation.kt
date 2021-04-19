@@ -1,42 +1,25 @@
-package com.yuukaze.i18next.model;
+package com.yuukaze.i18next.model
 
-import java.util.Map;
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.Pair
+import com.yuukaze.i18next.service.getEasyI18nService
 
 /**
  * Translated messages for a dedicated key.
- * @author marhali
  */
-public class KeyedTranslation {
-
-    private String key;
-    private Map<String, String> translations;
-
-    public KeyedTranslation(String key, Map<String, String> translations) {
-        this.key = key;
-        this.translations = translations;
-    }
-
-    public String getKey() {
-        return key;
-    }
-
-    public void setKey(String key) {
-        this.key = key;
-    }
-
-    public Map<String, String> getTranslations() {
-        return translations;
-    }
-
-    public void setTranslations(Map<String, String> translations) {
-        this.translations = translations;
-    }
-
-    @Override
-    public String toString() {
-        return "KeyedTranslation{" +
-                "key='" + key + '\'' +
-                ", translations=" + translations +
-                '}';
-    }
+class KeyedTranslation(
+  var key: String,
+  var translations: Map<String, String>?
+) {
+  override fun toString(): String {
+    return "KeyedTranslation{" +
+        "key='" + key + '\'' +
+        ", translations=" + translations +
+        '}'
+  }
 }
+
+fun Project.getKeyedFromPair(pair: Pair<String, String?>) = KeyedTranslation(
+  pair.first,
+  mapOf(this.getEasyI18nService().state.previewLocale to (pair.second ?: ""))
+)

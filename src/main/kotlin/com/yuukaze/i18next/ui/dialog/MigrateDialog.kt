@@ -8,6 +8,7 @@ import com.intellij.ui.components.JBTextField
 import com.intellij.ui.layout.CCFlags
 import com.intellij.ui.layout.panel
 import com.yuukaze.i18next.service.getEasyI18nDataStore
+import com.yuukaze.i18next.utils.memoize
 import java.awt.Dimension
 import java.awt.event.FocusEvent
 import java.awt.event.FocusListener
@@ -46,10 +47,10 @@ class MigrateDialog(private val project: Project) {
       scrollPane(listComponent).constraints(CCFlags.pushY)
     }
   }.apply {
-    preferredSize = Dimension(0, 300)
+    preferredSize = Dimension(450, 350)
   }
 
-  val builder = DialogBuilder(project).let {
+  private val builder = DialogBuilder(project).let {
     it.setTitle("Migrate")
     it.setCenterPanel(centerPanel)
     it
@@ -58,12 +59,7 @@ class MigrateDialog(private val project: Project) {
   fun showAndHandle() {
     if (builder.show() == DialogWrapper.OK_EXIT_CODE) {
       fullKeys.forEach { key ->
-        var newKey = replacePattern
-        findPattern.toRegex()
-          .find(key)!!.groups.forEachIndexed { index, group ->
-            if (index > 0)
-              newKey = newKey.replace("\$$index", group?.value ?: "")
-          }
+        val newKey = transformKey(findPattern, replacePattern, key)
         if (newKey != key)
           project.getEasyI18nDataStore().translations.changeKey(key, newKey)
       }
@@ -71,5 +67,18 @@ class MigrateDialog(private val project: Project) {
         project.getEasyI18nDataStore().doSync()
       }
     }
+  }
+
+  companion object {
+    val transformKey =
+      { findPattern: String, replacePattern: String, key: String ->
+        var newKey = replacePattern
+        findPattern.toRegex()
+          .find(key)!!.groups.forEachIndexed { index, group ->
+            if (index > 0)
+              newKey = newKey.replace("\$$index", group?.value ?: "")
+          }
+        newKey
+      }.memoize(1024 * 10)
   }
 }
