@@ -38,7 +38,7 @@ class TranslatorToolWindowFactory : ToolWindowFactory {
     toolWindow.contentManager.addContent(tableContent)
     val settings = project.getEasyI18nService().state
     val spreadsheetId = settings.spreadSheetId
-    val hasSpreadsheetId = spreadsheetId != null && spreadsheetId.isNotEmpty()
+    val hasSpreadsheetId = spreadsheetId.isNotEmpty()
 
     // ToolWindow Actions (Can be used for every view)
     val actions: MutableList<AnAction> = ArrayList()

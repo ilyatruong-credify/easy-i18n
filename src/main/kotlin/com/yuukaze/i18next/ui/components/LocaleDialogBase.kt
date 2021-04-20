@@ -3,9 +3,7 @@ package com.yuukaze.i18next.ui.components
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogBuilder
 import com.intellij.ui.components.JBTextField
-import com.intellij.ui.layout.PropertyBinding
 import com.intellij.ui.layout.panel
-import com.intellij.ui.layout.withTextBinding
 import com.yuukaze.i18next.model.KeyedTranslation
 import com.yuukaze.i18next.service.getEasyI18nDataStore
 import com.yuukaze.i18next.service.getEasyI18nService
@@ -23,10 +21,10 @@ abstract class LocaleDialogBase protected constructor(
 
   protected var keyTextField: I18nAutoCompleteTextField? = null
 
-  protected val entry: MutableMap<String, String>
-    get() = locales.associateWith {
-      (getTranslation(it) ?: "")
-    } as MutableMap<String, String>
+  private val entryFields = locales.associateWith { createLocaleTextField(it) }
+
+  protected val entry: Map<String, String>
+    get() = entryFields.mapValues { (_, field) -> field.text }
 
   protected abstract val preKey: String?
 
@@ -51,13 +49,8 @@ abstract class LocaleDialogBase protected constructor(
         }
         titledRow("Locales") {
           locales.map { locale ->
-            val localeField = createLocaleTextField(locale)
             row(locale) {
-              localeField().withTextBinding(
-                PropertyBinding(
-                  get = { entry[locale]!! },
-                  set = { v -> entry[locale] = v })
-              )
+              component(entryFields[locale]!!)
             }
           }
         }
