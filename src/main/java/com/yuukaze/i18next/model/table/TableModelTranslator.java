@@ -17,8 +17,6 @@ import java.util.stream.Collectors;
 
 /**
  * Table model to represents localized messages.
- *
- * @author marhali
  */
 public class TableModelTranslator implements TableModel {
     private final Translations translations;

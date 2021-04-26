@@ -15,7 +15,7 @@ import com.yuukaze.i18next.model.SettingsState
  * @author yuukaze
  */
 @State(name = "EasyI18nSettings")
-class EasyI18nSettingsService(private val project: Project) :
+class EasyI18nSettingsService(project: Project) :
   PersistentStateComponent<SettingsState> {
 
   private var state: SettingsState

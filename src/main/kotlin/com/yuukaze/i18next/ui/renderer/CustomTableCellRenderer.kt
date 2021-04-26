@@ -1,7 +1,9 @@
 package com.yuukaze.i18next.ui.renderer
 
 import com.intellij.icons.AllIcons
+import com.intellij.openapi.project.Project
 import com.intellij.ui.JBColor
+import com.yuukaze.i18next.service.getEasyI18nReferenceService
 import java.awt.Component
 import javax.swing.Icon
 import javax.swing.JLabel
@@ -18,7 +20,8 @@ object I18nDetectRegexes {
  * Similar to [DefaultTableCellRenderer] but will mark the first column red if any column is empty.
  * @author marhali
  */
-class CustomTableCellRenderer : DefaultTableCellRenderer() {
+class CustomTableCellRenderer(val project: Project) :
+  DefaultTableCellRenderer() {
   override fun getTableCellRendererComponent(
     table: JTable?,
     value: Any?,
@@ -51,6 +54,11 @@ class CustomTableCellRenderer : DefaultTableCellRenderer() {
     }
     return component
   }
+
+  private fun unusedValues(row: Int, table: JTable): Boolean =
+    table.getValueAt(row, 0).let {
+      (project.getEasyI18nReferenceService().map[it!!]?.count() ?: 0) == 0
+    }
 
   private fun missesValues(row: Int, table: JTable): Boolean {
     val columns = table.columnCount

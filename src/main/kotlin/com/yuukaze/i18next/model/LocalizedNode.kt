@@ -1,76 +1,62 @@
-package com.yuukaze.i18next.model;
+package com.yuukaze.i18next.model
 
-import com.yuukaze.i18next.util.MapUtil;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.*;
+import com.yuukaze.i18next.util.MapUtil
+import java.util.*
 
 /**
  * Represents structured tree view for translated messages.
  * @author marhali
  */
-public class LocalizedNode {
+class LocalizedNode {
+  val key: String
+  private var _children: TreeMap<String, LocalizedNode>
+  private var _value: MutableMap<String, String>
 
-    public static final String ROOT_KEY = "root";
+  constructor(key: String, children: List<LocalizedNode?>) {
+    this.key = key
+    this._children = MapUtil.convertToTreeMap(children)
+    _value = HashMap()
+  }
 
-    @NotNull
-    private final String key;
+  constructor(key: String, value: MutableMap<String, String>) {
+    this.key = key
+    _children = TreeMap()
+    this._value = value
+  }
 
-    @NotNull
-    private TreeMap<String, LocalizedNode> children;
+  val isLeaf: Boolean
+    get() = _children.isEmpty()
 
-    @NotNull
-    private Map<String, String> value;
+  val children
+    get() = _children.values
 
-    public LocalizedNode(@NotNull String key, @NotNull List<LocalizedNode> children) {
-        this.key = key;
-        this.children = MapUtil.convertToTreeMap(children);
-        this.value = new HashMap<>();
+  fun getChildren(key: String): LocalizedNode? {
+    return _children[key]
+  }
+
+  fun setChildren(vararg children: LocalizedNode?) {
+    _value.clear()
+    this._children = MapUtil.convertToTreeMap(Arrays.asList(*children))
+  }
+
+  fun addChildren(vararg children: LocalizedNode?) {
+    _value.clear()
+    Arrays.stream(children)
+      .forEach { e: LocalizedNode? -> this._children[e!!.key] = e }
+  }
+
+  fun removeChildren(key: String) {
+    _children.remove(key)
+  }
+
+  var value
+    get() = _value
+    set(value) {
+      _children.clear()
+      _value = value
     }
 
-    public LocalizedNode(@NotNull String key, @NotNull Map<String, String> value) {
-        this.key = key;
-        this.children = new TreeMap<>();
-        this.value = value;
-    }
-
-    public @NotNull String getKey() {
-        return key;
-    }
-
-    public boolean isLeaf() {
-        return children.isEmpty();
-    }
-
-    public @NotNull Collection<LocalizedNode> getChildren() {
-        return children.values();
-    }
-
-    public @Nullable LocalizedNode getChildren(@NotNull String key) {
-        return children.get(key);
-    }
-
-    public void setChildren(@NotNull LocalizedNode... children) {
-        this.value.clear();
-        this.children = MapUtil.convertToTreeMap(Arrays.asList(children));
-    }
-
-    public void addChildren(@NotNull LocalizedNode... children) {
-        this.value.clear();
-        Arrays.stream(children).forEach(e -> this.children.put(e.getKey(), e));
-    }
-
-    public void removeChildren(@NotNull String key) {
-        this.children.remove(key);
-    }
-
-    public @NotNull Map<String, String> getValue() {
-        return value;
-    }
-
-    public void setValue(@NotNull Map<String, String> value) {
-        this.children.clear();
-        this.value = value;
-    }
+  companion object {
+    const val ROOT_KEY = "root"
+  }
 }

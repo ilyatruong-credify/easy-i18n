@@ -3,6 +3,7 @@ package com.yuukaze.i18next.ui.tabs
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.JBMenuItem
 import com.intellij.openapi.ui.JBPopupMenu
+import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.ui.JBColor
 import com.intellij.ui.border.CustomLineBorder
 import com.intellij.ui.components.JBScrollPane
@@ -11,6 +12,7 @@ import com.intellij.ui.table.JBTable
 import com.yuukaze.i18next.model.*
 import com.yuukaze.i18next.model.table.TableModelTranslator
 import com.yuukaze.i18next.service.DataStore
+import com.yuukaze.i18next.service.getEasyI18nDataStore
 import com.yuukaze.i18next.ui.components.RootKeyTree
 import com.yuukaze.i18next.ui.dialog.MigrateDialog
 import com.yuukaze.i18next.ui.listener.DeleteKeyListener
@@ -50,7 +52,10 @@ class TableView(private val project: Project?) : DataSynchronizer {
     table.emptyText.text =
       ResourceBundle.getBundle("messages").getString("view.empty")
     table.addKeyListener(DeleteKeyListener(handleDeleteKey()))
-    table.setDefaultRenderer(String::class.java, CustomTableCellRenderer())
+    table.setDefaultRenderer(
+      String::class.java,
+      CustomTableCellRenderer(project!!)
+    )
     table.componentPopupMenu = popupMenu
     setupTableHeader()
     val scrollPane = JBScrollPane(table)
@@ -68,19 +73,6 @@ class TableView(private val project: Project?) : DataSynchronizer {
         e
       )
     })
-  }
-
-  private fun handlePopup(e: MouseEvent) {
-    val row = table.rowAtPoint(e.point)
-    if (row >= 0) {
-      val fullPath = table.getValueAt(row, 0).toString()
-      val node = DataStore.getInstance(
-        project
-      ).translations.getNode(fullPath)
-      if (node != null) {
-        //                popup.createPopup().show
-      }
-    }
   }
 
   private fun handleFilter(e: MouseEvent) {
@@ -114,25 +106,34 @@ class TableView(private val project: Project?) : DataSynchronizer {
     }
   }
 
-  private fun handleEdit() {
+  private fun handleEdit(row: Int) {
     //TODO implement
   }
 
-  private fun handleMigrate() {
+  private fun handleMigrate(row: Int) {
     MigrateDialog(project!!).showAndHandle()
   }
 
-  private fun handleDelete() {
-    //TODO implement
+  private fun handleDelete(row: Int) {
+    val key = table.getValueAt(row, 0).toString()
+    JBPopupFactory.getInstance()
+      .createConfirmation(
+        "Delete key $key?", "Yes", "No",
+        {
+          val dataStore = project.getEasyI18nDataStore()
+          dataStore.translations.nodes.removeChildren(key)
+          dataStore.doSync()
+        }, 0
+      ).showCenteredInCurrentWindow(project!!)
   }
 
-  internal class TableViewAction(
+  inner class TableViewAction(
     private val name: String,
-    val callback: () -> Unit
+    val callback: (row: Int) -> Unit
   ) :
     Action {
     override fun actionPerformed(e: ActionEvent?) {
-      callback()
+      callback(table.selectedRow)
     }
 
     override fun getValue(key: String?): Any? = when (key) {
