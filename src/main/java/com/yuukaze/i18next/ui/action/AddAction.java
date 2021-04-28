@@ -7,6 +7,7 @@ import com.yuukaze.i18next.service.WindowManager;
 import com.yuukaze.i18next.ui.dialog.AddDialog;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Objects;
 import java.util.ResourceBundle;
 
 /**
@@ -23,7 +24,7 @@ public class AddAction extends AnAction {
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
-        new AddDialog(e.getProject(), detectPreKey()).showAndHandle();
+        new AddDialog(Objects.requireNonNull(e.getProject()), detectPreKey()).showAndHandle();
     }
 
     private String detectPreKey() {

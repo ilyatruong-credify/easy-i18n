@@ -33,6 +33,7 @@ dependencies {
   implementation("com.google.apis:google-api-services-sheets:v4-rev581-1.25.0")
   implementation("com.google.http-client:google-http-client:1.39.1")
   implementation("com.google.oauth-client:google-oauth-client-jetty:1.31.4")
+  implementation("io.reactivex.rxjava3:rxjava:3.0.12")
 }
 
 // Configure gradle-intellij-plugin plugin.

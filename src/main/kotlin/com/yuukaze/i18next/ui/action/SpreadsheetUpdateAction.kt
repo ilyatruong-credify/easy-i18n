@@ -25,7 +25,6 @@ class SpreadsheetUpdateAction :
             .values()[spreadsheetId, SPREADSHEET_RANGE].execute()
         val values = result.getValues()
 
-//                List<String> locales = values.get(0).stream().skip(1).map(o -> (String) o).collect(Collectors.toList());
         val translations = DataStore.getInstance(project).translations
         val locales = translations.locales
         val rows = values.stream().skip(1).collect(Collectors.toList())

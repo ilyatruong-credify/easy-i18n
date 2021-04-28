@@ -29,18 +29,6 @@ import javax.swing.Action
  */
 class TableView(private val project: Project?) : DataSynchronizer,
   JComponentWrapper<JBScrollPane> {
-  //  val rootPanel: JPanel
-//    get() = ToolbarDecorator.createDecorator(table)
-//      .setPanelBorder(JBUI.Borders.empty())
-//      .setScrollPaneBorder(JBUI.Borders.empty())
-//      .setToolbarPosition(ActionToolbarPosition.LEFT)
-//      .addExtraAction(object :
-//        AnActionButton(null, AllIcons.Actions.Preview) {
-//        override fun actionPerformed(e: AnActionEvent) {
-//          TODO("Not yet implemented")
-//        }
-//      })
-//      .createPanel()
   val table: JBTable = JBTable().apply {
     border = JBUI.Borders.empty()
     componentPopupMenu = popupMenu
@@ -89,7 +77,7 @@ class TableView(private val project: Project?) : DataSynchronizer,
     return Runnable {
       for (selectedRow in table.selectedRows) {
         val fullPath = table.getValueAt(selectedRow, 0).toString()
-        DataStore.getInstance(project).processUpdate(
+        DataStore.getInstance(project!!).processUpdate(
           TranslationDelete(KeyedTranslation(fullPath, null))
         )
       }
@@ -102,7 +90,7 @@ class TableView(private val project: Project?) : DataSynchronizer,
       searchQuery
     ) { update: TranslationUpdate? ->
       DataStore.getInstance(
-        project
+        project!!
       ).processUpdate(update)
     }
   }

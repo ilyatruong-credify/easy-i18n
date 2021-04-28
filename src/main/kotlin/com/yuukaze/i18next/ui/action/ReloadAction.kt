@@ -25,7 +25,7 @@ class ReloadAction : AnAction(
       TypeScriptJSXFileType.INSTANCE,
       GlobalSearchScope.projectScope(e.project!!)
     )
-    DataStore.getInstance(e.project).reloadFromDisk()
+    DataStore.getInstance(e.project!!).reloadFromDisk()
     Notifier.notifySuccess(e.project, "Reload from disk success")
   }
 }
