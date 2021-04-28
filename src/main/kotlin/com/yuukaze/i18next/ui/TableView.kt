@@ -1,45 +1,52 @@
-package com.yuukaze.i18next.ui.tabs
+package com.yuukaze.i18next.ui
 
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.JBMenuItem
 import com.intellij.openapi.ui.JBPopupMenu
 import com.intellij.openapi.ui.popup.JBPopupFactory
-import com.intellij.ui.JBColor
-import com.intellij.ui.border.CustomLineBorder
 import com.intellij.ui.components.JBScrollPane
-import com.intellij.ui.layout.panel
 import com.intellij.ui.table.JBTable
+import com.intellij.util.ui.JBUI
 import com.yuukaze.i18next.model.*
 import com.yuukaze.i18next.model.table.TableModelTranslator
 import com.yuukaze.i18next.service.DataStore
 import com.yuukaze.i18next.service.getEasyI18nDataStore
-import com.yuukaze.i18next.ui.components.RootKeyTree
 import com.yuukaze.i18next.ui.dialog.MigrateDialog
 import com.yuukaze.i18next.ui.listener.DeleteKeyListener
 import com.yuukaze.i18next.ui.listener.DoubleClickListener
 import com.yuukaze.i18next.ui.model.FilterUntranslatedModel
 import com.yuukaze.i18next.ui.renderer.CustomTableCellRenderer
 import com.yuukaze.i18next.ui.renderer.CustomTableHeaderCellRenderer
+import com.yuukaze.i18next.utils.JComponentWrapper
 import java.awt.event.ActionEvent
 import java.awt.event.MouseEvent
 import java.beans.PropertyChangeListener
 import java.util.*
 import javax.swing.Action
-import javax.swing.JPanel
 
 /**
  * Shows translation state as table.
  */
-class TableView(private val project: Project?) : DataSynchronizer {
-  val rootPanel: JPanel
-    get() = panel {
-      row {
-        scrollPane(rootKeyTree)
-        scrollPane(table).constraints(pushX)
-      }
-    }
-  val rootKeyTree: RootKeyTree
-  val table: JBTable = JBTable()
+class TableView(private val project: Project?) : DataSynchronizer,
+  JComponentWrapper<JBScrollPane> {
+  //  val rootPanel: JPanel
+//    get() = ToolbarDecorator.createDecorator(table)
+//      .setPanelBorder(JBUI.Borders.empty())
+//      .setScrollPaneBorder(JBUI.Borders.empty())
+//      .setToolbarPosition(ActionToolbarPosition.LEFT)
+//      .addExtraAction(object :
+//        AnActionButton(null, AllIcons.Actions.Preview) {
+//        override fun actionPerformed(e: AnActionEvent) {
+//          TODO("Not yet implemented")
+//        }
+//      })
+//      .createPanel()
+  val table: JBTable = JBTable().apply {
+    border = JBUI.Borders.empty()
+    componentPopupMenu = popupMenu
+    emptyText.text =
+      ResourceBundle.getBundle("messages").getString("view.empty")
+  }
   private val filterUntranslated = FilterUntranslatedModel()
   private val popupMenu = JBPopupMenu().let {
     it.add(JBMenuItem(TableViewAction("Edit...", this::handleEdit)))
@@ -49,18 +56,12 @@ class TableView(private val project: Project?) : DataSynchronizer {
   }
 
   init {
-    table.emptyText.text =
-      ResourceBundle.getBundle("messages").getString("view.empty")
     table.addKeyListener(DeleteKeyListener(handleDeleteKey()))
     table.setDefaultRenderer(
       String::class.java,
       CustomTableCellRenderer(project!!)
     )
-    table.componentPopupMenu = popupMenu
     setupTableHeader()
-    val scrollPane = JBScrollPane(table)
-    scrollPane.border = CustomLineBorder(JBColor.border(), 0, 1, 0, 0)
-    rootKeyTree = RootKeyTree(project)
   }
 
   private fun setupTableHeader() {
@@ -152,4 +153,9 @@ class TableView(private val project: Project?) : DataSynchronizer {
 
     override fun removePropertyChangeListener(listener: PropertyChangeListener?) {}
   }
+
+  override val component: JBScrollPane
+    get() = JBScrollPane(table).apply {
+      border = JBUI.Borders.empty(1, 1, 0, 0)
+    }
 }

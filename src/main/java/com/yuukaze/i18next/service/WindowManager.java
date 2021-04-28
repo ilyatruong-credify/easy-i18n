@@ -1,7 +1,7 @@
 package com.yuukaze.i18next.service;
 
 import com.intellij.openapi.wm.ToolWindow;
-import com.yuukaze.i18next.ui.tabs.TableView;
+import com.yuukaze.i18next.ui.TableView;
 
 public class WindowManager {
 

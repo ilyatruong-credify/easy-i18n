@@ -16,7 +16,7 @@
                 serviceImplementation="com.yuukaze.i18next.service.I18nKeyReferenceManager"/>
 
         <backgroundPostStartupActivity
-                implementation="com.yuukaze.i18next.extension.EasyI18nStartupTask"/>
+                implementation="com.yuukaze.i18next.EasyI18nStartupTask"/>
         <toolWindow id="I18next" anchor="bottom"
                     factoryClass="com.yuukaze.i18next.TranslatorToolWindowFactory"/>
         <notificationGroup id="EasyI18n Notification Group"
