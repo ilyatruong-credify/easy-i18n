@@ -20,7 +20,7 @@ class SearchKeyView(private val callback: Consumer<String>) :
     textField.addKeyListener(handleKeyListener())
     textField.isOpaque = false
     textField.textEditor!!.apply {
-      border = JBUI.Borders.empty()
+      border = JBUI.Borders.empty(3,5)
       setUI(DarculaTextFieldUI())
     }
     PromptSupport.setPrompt(
