@@ -7,9 +7,8 @@ import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.table.JBTable
 import com.intellij.util.ui.JBUI
-import com.yuukaze.i18next.model.*
-import com.yuukaze.i18next.model.table.TableModelTranslator
-import com.yuukaze.i18next.service.DataStore
+import com.yuukaze.i18next.data.I18nReduxSelectors
+import com.yuukaze.i18next.model.TableModelTranslator
 import com.yuukaze.i18next.service.getEasyI18nDataStore
 import com.yuukaze.i18next.ui.dialog.MigrateDialog
 import com.yuukaze.i18next.ui.listener.DeleteKeyListener
@@ -27,7 +26,7 @@ import javax.swing.Action
 /**
  * Shows translation state as table.
  */
-class TableView(private val project: Project?) : DataSynchronizer,
+class TableView(private val project: Project?) :
   JComponentWrapper<JBScrollPane> {
   val table: JBTable = JBTable().apply {
     border = JBUI.Borders.empty()
@@ -50,6 +49,9 @@ class TableView(private val project: Project?) : DataSynchronizer,
       CustomTableCellRenderer(project!!)
     )
     setupTableHeader()
+    I18nReduxSelectors.filteredTranslations {
+      table.model = TableModelTranslator(it)
+    }
   }
 
   private fun setupTableHeader() {
@@ -77,21 +79,11 @@ class TableView(private val project: Project?) : DataSynchronizer,
     return Runnable {
       for (selectedRow in table.selectedRows) {
         val fullPath = table.getValueAt(selectedRow, 0).toString()
-        DataStore.getInstance(project!!).processUpdate(
-          TranslationDelete(KeyedTranslation(fullPath, null))
-        )
+        //TODO delete key
+//        DataStore.getInstance(project!!).processUpdate(
+//          DeleteTranslation(KeyedTranslation(fullPath, null))
+//        )
       }
-    }
-  }
-
-  override fun synchronize(translations: Translations, searchQuery: String?) {
-    table.model = TableModelTranslator(
-      translations,
-      searchQuery
-    ) { update: TranslationUpdate? ->
-      DataStore.getInstance(
-        project!!
-      ).processUpdate(update)
     }
   }
 

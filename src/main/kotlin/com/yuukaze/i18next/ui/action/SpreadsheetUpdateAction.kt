@@ -4,6 +4,8 @@ import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.project.Project
+import com.yuukaze.i18next.data.ReloadTranslations
+import com.yuukaze.i18next.data.i18nStore
 import com.yuukaze.i18next.service.DataStore
 import com.yuukaze.i18next.service.Notifier
 import com.yuukaze.i18next.service.SpreadsheetExecutorBase
@@ -39,7 +41,7 @@ class SpreadsheetUpdateAction :
           }
         }
         println(translations.nodes.children.size)
-        DataStore.getInstance(project).processUpdate(null)
+        i18nStore.dispatch(ReloadTranslations(translations = translations))
         Notifier.notifySuccess(
           project,
           "Successfully update translation from Spreadsheet"

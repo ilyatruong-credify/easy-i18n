@@ -8,8 +8,7 @@ import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.treeStructure.Tree
 import com.intellij.util.ObjectUtils
 import com.intellij.util.ui.JBUI
-import com.yuukaze.i18next.model.DataSynchronizer
-import com.yuukaze.i18next.model.Translations
+import com.yuukaze.i18next.data.I18nReduxSelectors
 import com.yuukaze.i18next.model.table.RootKeyTreeModel
 import com.yuukaze.i18next.utils.JComponentWrapper
 import java.util.*
@@ -18,9 +17,9 @@ import javax.swing.event.TreeSelectionEvent
 import javax.swing.event.TreeSelectionListener
 import javax.swing.tree.DefaultMutableTreeNode
 
-class RootKeyTreeView(private val project: Project) : DataSynchronizer,
+class RootKeyTreeView(private val project: Project) :
   JComponentWrapper<JBScrollPane> {
-  val tree = Tree().apply {
+  private val tree = Tree().apply {
     cellRenderer = object : ColoredTreeCellRenderer() {
       override fun customizeCellRenderer(
         tree: JTree,
@@ -41,8 +40,10 @@ class RootKeyTreeView(private val project: Project) : DataSynchronizer,
       ResourceBundle.getBundle("messages").getString("view.empty")
   }
 
-  override fun synchronize(translations: Translations, searchQuery: String?) {
-    tree.model = RootKeyTreeModel(project, translations)
+  init {
+    I18nReduxSelectors.filteredTranslations {
+      tree.model = RootKeyTreeModel(project, it)
+    }
   }
 
   private class TreeClickListener : TreeSelectionListener {

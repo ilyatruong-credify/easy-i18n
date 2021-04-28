@@ -6,6 +6,14 @@ import com.intellij.openapi.util.Pair
  * Represents translation state instance. IO operations will be based on this file.
  */
 class Translations(val locales: List<String>, val nodes: LocalizedNode) {
+  constructor() : this(
+    ArrayList(),
+    LocalizedNode(LocalizedNode.ROOT_KEY, ArrayList())
+  )
+
+  fun clone(children: List<LocalizedNode?>): Translations =
+    Translations(locales, LocalizedNode(LocalizedNode.ROOT_KEY, children))
+
   fun getNode(fullPath: String): LocalizedNode? {
     return nodes.getChildren(fullPath)
   }

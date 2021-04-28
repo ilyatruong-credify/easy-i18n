@@ -33,7 +33,10 @@ dependencies {
   implementation("com.google.apis:google-api-services-sheets:v4-rev581-1.25.0")
   implementation("com.google.http-client:google-http-client:1.39.1")
   implementation("com.google.oauth-client:google-oauth-client-jetty:1.31.4")
-  implementation("io.reactivex.rxjava3:rxjava:3.0.12")
+  implementation("org.reduxkotlin:redux-kotlin-threadsafe:0.5.5")
+  implementation("org.reduxkotlin:reselect-jvm:0.5.5")
+  implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.3")
+  implementation("org.jetbrains.kotlinx:kotlinx-coroutines-swing:1.4.3")
 }
 
 // Configure gradle-intellij-plugin plugin.

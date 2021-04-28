@@ -3,6 +3,7 @@ package com.yuukaze.i18next.utils
 import com.intellij.openapi.ui.panel.PanelBuilder
 import com.intellij.uiDesigner.core.GridConstraints
 import com.intellij.uiDesigner.core.GridLayoutManager
+import com.intellij.util.ui.components.BorderLayoutPanel
 import java.awt.LayoutManager
 import javax.swing.JComponent
 import javax.swing.JPanel
@@ -24,6 +25,9 @@ fun grid(
   )
 
 fun grid(build: GridBuilder.() -> Unit): JPanel = grid(1, 1, build)
+
+fun border(build: BorderLayoutPanel.() -> Unit): BorderLayoutPanel =
+  BorderLayoutPanel().apply(build)
 
 interface JComponentFactory {
   fun grid(
@@ -89,38 +93,4 @@ class DefaultJComponentFactory : JComponentFactory {
 
 interface JComponentWrapper<T : JComponent> {
   val component: T
-}
-
-class GridConstraintBuilder(private val constraint: GridConstraints) {
-  fun pos(row: Int = 0, col: Int = 0) {
-    constraint.row = row
-    constraint.column = col
-  }
-
-  private fun growX() {
-    constraint.hSizePolicy =
-      constraint.hSizePolicy or GridConstraints.SIZEPOLICY_WANT_GROW
-  }
-
-  private fun growY() {
-    constraint.vSizePolicy =
-      constraint.vSizePolicy or GridConstraints.SIZEPOLICY_WANT_GROW
-  }
-
-  fun grow(x: Boolean = false, y: Boolean = false) {
-    if (x) growX()
-    if (y) growY()
-  }
-}
-
-object Constraint {
-  val defaultGrid = GridConstraints().apply {
-    fill = GridConstraints.FILL_BOTH
-  }
-
-  fun grid(build: GridConstraintBuilder.() -> Unit): GridConstraints {
-    val c = defaultGrid.clone() as GridConstraints
-    build(GridConstraintBuilder(c))
-    return c
-  }
 }

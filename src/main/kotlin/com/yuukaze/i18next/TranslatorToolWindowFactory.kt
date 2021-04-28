@@ -9,7 +9,10 @@ import com.yuukaze.i18next.service.WindowManager
 import com.yuukaze.i18next.service.getEasyI18nService
 import com.yuukaze.i18next.ui.I18nToolWindow
 import com.yuukaze.i18next.ui.Icons
-import com.yuukaze.i18next.ui.action.*
+import com.yuukaze.i18next.ui.action.AddAction
+import com.yuukaze.i18next.ui.action.SettingsAction
+import com.yuukaze.i18next.ui.action.SpreadsheetUpdateAction
+import com.yuukaze.i18next.ui.action.SpreadsheetUploadAction
 import java.util.*
 
 /**
@@ -44,7 +47,6 @@ class TranslatorToolWindowFactory : ToolWindowFactory {
       actions.add(SpreadsheetUpdateAction())
     }
     actions.add(AddAction())
-    actions.add(ReloadAction())
     actions.add(SettingsAction())
     toolWindow.setTitleActions(actions)
 
@@ -54,8 +56,6 @@ class TranslatorToolWindowFactory : ToolWindowFactory {
 
     // Initialize data store and load from disk
     val store = project.getEasyI18nService().dataStore
-    store.addSynchronizer(toolWindowComponent.tableView)
-    store.addSynchronizer(toolWindowComponent.rootKeyTreeView)
     store.reloadFromDisk()
   }
 }
