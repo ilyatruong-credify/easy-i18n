@@ -16,7 +16,7 @@ class DataStore private constructor(private val project: Project) {
    * @return Current translation state
    */
   val translations: Translations
-    get() = i18nStore.getState().translations
+    get() = i18nStore.getState().translations!!
 
   /**
    * Loads all translations from disk and overrides current [.translations] state.

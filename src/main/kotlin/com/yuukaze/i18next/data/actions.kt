@@ -32,3 +32,9 @@ class CreateTranslation(translation: KeyedTranslation) :
 
 class DeleteTranslation(translation: KeyedTranslation) :
   UpdateTranslation(translation, null)
+
+enum class TableFilterMode {
+  ALL, SHOW_MISSING, SHOW_UNUSED
+}
+
+data class TableFilterAction(val mode: TableFilterMode)

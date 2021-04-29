@@ -4,12 +4,12 @@ import com.yuukaze.i18next.model.KeyedTranslation
 import com.yuukaze.i18next.model.LocalizedNode
 import com.yuukaze.i18next.model.Translations
 import com.yuukaze.i18next.util.TranslationsUtil
-import org.reduxkotlin.Reducer
-import org.reduxkotlin.createThreadSafeStore
+import org.reduxkotlin.*
 
 data class AppState(
   val searchText: String = "",
-  val translations: Translations = Translations()
+  val filter: TableFilterMode = TableFilterMode.ALL,
+  val translations: Translations? = null
 )
 
 fun processUpdate(
@@ -58,12 +58,25 @@ val reducer: Reducer<AppState> = { state, action ->
     is ReloadTranslations -> state.copy(translations = action.translations)
     is UpdateTranslation -> state.copy(
       translations = processUpdate(
-        state.translations,
+        state.translations!!,
         action
       )
     )
+    is TableFilterAction -> state.copy(filter = action.mode)
     else -> state
   }
 }
 
-val i18nStore = createThreadSafeStore(reducer, AppState())
+fun loggerMiddleware(store: Store<AppState>) = { next: Dispatcher ->
+  { action: Any ->
+    val result = next(action)
+    println("DISPATCH action: ${action::class.simpleName}: $action")
+    result
+  }
+}
+
+val i18nStore = createThreadSafeStore(
+  reducer,
+  AppState(),
+  applyMiddleware(::loggerMiddleware)
+)

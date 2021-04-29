@@ -11,6 +11,7 @@ import com.intellij.ui.SideBorder
 import com.intellij.ui.components.panels.NonOpaquePanel
 import com.intellij.util.ui.JBUI
 import com.yuukaze.i18next.ui.action.ReloadAction
+import com.yuukaze.i18next.ui.action.TableDataFilterViewAction
 import com.yuukaze.i18next.utils.border
 
 class I18nToolWindow(project: Project) {
@@ -22,7 +23,8 @@ class I18nToolWindow(project: Project) {
     .createActionToolbar(
       ActionPlaces.UNKNOWN, DefaultActionGroup(
         ReloadAction(),
-        Separator.getInstance()
+        Separator.getInstance(),
+        TableDataFilterViewAction()
       ), false
     )
 

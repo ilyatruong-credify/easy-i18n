@@ -53,7 +53,7 @@ class TypedSelectorBuilder<S : Any> {
     }
 }
 
-fun <State : Any, T> Store<State>.reselectors(selectorSubscriberBuilderInit: SelectorSubscriberBuilder<State, T>.() -> Unit): StoreSubscriber {
+private fun <State : Any, T> Store<State>.reselectors(selectorSubscriberBuilderInit: SelectorSubscriberBuilder<State, T>.() -> Unit): StoreSubscriber {
   val subscriberBuilder = SelectorSubscriberBuilder<State, T>(this)
   subscriberBuilder.selectorSubscriberBuilderInit()
   val sub = {
