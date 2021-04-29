@@ -4,6 +4,7 @@ import com.intellij.lang.javascript.JSElementTypes
 import com.intellij.lang.javascript.TypeScriptFileType
 import com.intellij.lang.javascript.TypeScriptJSXFileType
 import com.intellij.lang.javascript.psi.JSCallExpression
+import com.intellij.openapi.application.ReadAction
 import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
@@ -15,6 +16,10 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.search.PsiElementProcessor
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.util.elementType
+import com.yuukaze.i18next.data.ReloadPsi
+import com.yuukaze.i18next.data.i18nStore
+
+typealias PsiElementSet = MutableSet<PsiElement>
 
 class I18nKeyReferenceManager(private val project: Project) {
   companion object {
@@ -22,7 +27,7 @@ class I18nKeyReferenceManager(private val project: Project) {
       listOf(TypeScriptFileType.INSTANCE, TypeScriptJSXFileType.INSTANCE)
   }
 
-  val map = mutableMapOf<String, MutableSet<PsiElement>>()
+  val map = mutableMapOf<String, PsiElementSet>()
 
   private val searchScope = GlobalSearchScope.projectScope(project)
 
@@ -35,18 +40,28 @@ class I18nKeyReferenceManager(private val project: Project) {
     }.flatten()
 
   private fun addElementToMap(key: String, element: PsiElement) {
-    if (map[key] == null)
-      map[key] = mutableSetOf()
-    map[key]!!.add(element)
+    val unquotedKey = key.removeSurrounding("\"")
+    if (map[unquotedKey] == null)
+      map[unquotedKey] = mutableSetOf()
+    map[unquotedKey]!!.add(element)
   }
 
   private fun <T : PsiFile> T.getI18nHookCallElement(callback: (String, PsiElement) -> Unit) =
     PsiTreeUtil.processElements(this, I18nEntryProcessor(callback))
 
+  fun processAll(callback: (Map<String, PsiElementSet>) -> Unit) {
+    ReadAction.nonBlocking {
+      for (f in virtualJsFiles)
+        PsiManager.getInstance(project).findFile(f)
+          ?.getI18nHookCallElement(this::addElementToMap)
+      callback(map)
+    }.inSmartMode(project).executeSynchronously()
+  }
+
   fun processAll() {
-    for (f in virtualJsFiles)
-      PsiManager.getInstance(project).findFile(f)
-        ?.getI18nHookCallElement(this::addElementToMap)
+    processAll {
+      i18nStore.dispatch(ReloadPsi(map = it))
+    }
   }
 
   class I18nEntryProcessor(val callback: (String, PsiElement) -> Unit) :

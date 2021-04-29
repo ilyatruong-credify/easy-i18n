@@ -5,7 +5,6 @@ import java.util.*
 
 /**
  * Represents structured tree view for translated messages.
- * @author marhali
  */
 class LocalizedNode {
   val key: String

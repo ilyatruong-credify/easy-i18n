@@ -2,6 +2,7 @@ package com.yuukaze.i18next.data
 
 import com.yuukaze.i18next.model.KeyedTranslation
 import com.yuukaze.i18next.model.Translations
+import com.yuukaze.i18next.service.PsiElementSet
 
 data class SearchAction(val text: String)
 
@@ -38,3 +39,7 @@ enum class TableFilterMode {
 }
 
 data class TableFilterAction(val mode: TableFilterMode)
+
+data class ReloadPsi(val map: Map<String, PsiElementSet>){
+  override fun toString(): String ="ReloadPsi(map.size=${map.size})"
+}

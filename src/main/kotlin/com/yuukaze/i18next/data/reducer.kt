@@ -3,13 +3,15 @@ package com.yuukaze.i18next.data
 import com.yuukaze.i18next.model.KeyedTranslation
 import com.yuukaze.i18next.model.LocalizedNode
 import com.yuukaze.i18next.model.Translations
+import com.yuukaze.i18next.service.PsiElementSet
 import com.yuukaze.i18next.util.TranslationsUtil
 import org.reduxkotlin.*
 
 data class AppState(
   val searchText: String = "",
   val filter: TableFilterMode = TableFilterMode.ALL,
-  val translations: Translations? = null
+  val translations: Translations? = null,
+  val psiMap: Map<String, PsiElementSet>? = null
 )
 
 fun processUpdate(
@@ -63,6 +65,7 @@ val reducer: Reducer<AppState> = { state, action ->
       )
     )
     is TableFilterAction -> state.copy(filter = action.mode)
+    is ReloadPsi -> state.copy(psiMap = action.map)
     else -> state
   }
 }
