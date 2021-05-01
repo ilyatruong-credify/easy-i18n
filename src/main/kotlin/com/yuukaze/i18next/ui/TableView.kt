@@ -11,7 +11,6 @@ import com.yuukaze.i18next.data.I18nReduxSelectors
 import com.yuukaze.i18next.model.TableModelTranslator
 import com.yuukaze.i18next.service.getEasyI18nDataStore
 import com.yuukaze.i18next.ui.dialog.MigrateDialog
-import com.yuukaze.i18next.ui.listener.DeleteKeyListener
 import com.yuukaze.i18next.ui.listener.DoubleClickListener
 import com.yuukaze.i18next.ui.model.FilterUntranslatedModel
 import com.yuukaze.i18next.ui.renderer.CustomTableCellRenderer
@@ -30,7 +29,6 @@ class TableView(private val project: Project?) :
   JComponentWrapper<JBScrollPane> {
   val table: JBTable = JBTable().apply {
     border = JBUI.Borders.empty()
-    componentPopupMenu = popupMenu
     emptyText.text =
       ResourceBundle.getBundle("messages").getString("view.empty")
   }
@@ -43,14 +41,14 @@ class TableView(private val project: Project?) :
   }
 
   init {
-    table.addKeyListener(DeleteKeyListener(handleDeleteKey()))
+    table.componentPopupMenu = popupMenu
     table.setDefaultRenderer(
       String::class.java,
       CustomTableCellRenderer(project!!)
     )
     setupTableHeader()
     I18nReduxSelectors.filteredTranslations {
-      table.model = TableModelTranslator(it)
+      table.model = TableModelTranslator(it!!)
     }
   }
 
@@ -72,18 +70,6 @@ class TableView(private val project: Project?) :
     if (col >= 0 && filterUntranslated.available.contains(colName)) {
       val current = filterUntranslated.toggle
       filterUntranslated.toggle = if (current == colName) null else colName
-    }
-  }
-
-  private fun handleDeleteKey(): Runnable {
-    return Runnable {
-      for (selectedRow in table.selectedRows) {
-        val fullPath = table.getValueAt(selectedRow, 0).toString()
-        //TODO delete key
-//        DataStore.getInstance(project!!).processUpdate(
-//          DeleteTranslation(KeyedTranslation(fullPath, null))
-//        )
-      }
     }
   }
 

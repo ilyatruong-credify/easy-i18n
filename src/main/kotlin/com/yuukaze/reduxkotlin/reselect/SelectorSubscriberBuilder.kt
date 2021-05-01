@@ -1,6 +1,4 @@
 package com.yuukaze.reduxkotlin.reselect
-
-import org.reduxkotlin.Selector
 import org.reduxkotlin.Store
 
 class SelectorSubscriberBuilder<State : Any,T>(val store: Store<State>) {

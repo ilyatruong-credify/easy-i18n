@@ -17,8 +17,7 @@ object I18nDetectRegexes {
 }
 
 /**
- * Similar to [DefaultTableCellRenderer] but will mark the first column red if any column is empty.
- * @author marhali
+ * Similar to [DefaultTableCellRenderer] but will mark the first column red if any column is empty
  */
 class CustomTableCellRenderer(val project: Project) :
   DefaultTableCellRenderer() {

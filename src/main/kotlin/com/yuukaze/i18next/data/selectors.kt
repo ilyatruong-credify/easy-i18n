@@ -1,7 +1,6 @@
 package com.yuukaze.i18next.data
 
 import com.yuukaze.i18next.model.LocalizedNode
-import com.yuukaze.i18next.model.Translations
 import com.yuukaze.i18next.service.PsiElementSet
 import com.yuukaze.i18next.utils.memoize
 import com.yuukaze.reduxkotlin.reselect.reselect
@@ -32,6 +31,6 @@ object I18nReduxSelectors {
     )
     state.translations?.let { it ->
       it.clone(it.nodes.children.filter(filterFn))
-    } ?: Translations()
+    }
   }
 }

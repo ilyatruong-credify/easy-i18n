@@ -10,14 +10,17 @@ import com.intellij.ui.OnePixelSplitter
 import com.intellij.ui.SideBorder
 import com.intellij.ui.components.panels.NonOpaquePanel
 import com.intellij.util.ui.JBUI
+import com.yuukaze.i18next.data.I18nReduxSelectors
 import com.yuukaze.i18next.ui.action.ReloadAction
 import com.yuukaze.i18next.ui.action.TableDataFilterViewAction
 import com.yuukaze.i18next.utils.border
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 
+@ExperimentalCoroutinesApi
 class I18nToolWindow(project: Project) {
-  val tableView = TableView(project)
+  val tableView by lazy { TableView(project) }
   val searchKeyView = SearchKeyView()
-  val rootKeyTreeView = RootKeyTreeView(project)
+  val rootKeyTreeView by lazy { RootKeyTreeView(project) }
 
   val toolbar = ActionManager.getInstance()
     .createActionToolbar(
@@ -45,7 +48,10 @@ class I18nToolWindow(project: Project) {
           })
           addToCenter(rootKeyTreeView.component)
         }
-        secondComponent = tableView.component
+        I18nReduxSelectors.filteredTranslations {
+          if (it !== null)
+            secondComponent = tableView.component
+        }
       })
     }
 }

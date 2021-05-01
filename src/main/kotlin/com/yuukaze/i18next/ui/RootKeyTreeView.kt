@@ -42,7 +42,7 @@ class RootKeyTreeView(private val project: Project) :
 
   init {
     I18nReduxSelectors.filteredTranslations {
-      tree.model = RootKeyTreeModel(project, it)
+      if (it !== null) tree.model = RootKeyTreeModel(project, it)
     }
   }
 
