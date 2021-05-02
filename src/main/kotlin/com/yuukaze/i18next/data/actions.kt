@@ -1,8 +1,18 @@
 package com.yuukaze.i18next.data
 
+import com.intellij.openapi.project.Project
 import com.yuukaze.i18next.model.KeyedTranslation
 import com.yuukaze.i18next.model.Translations
+import com.yuukaze.i18next.service.EasyI18nSettingsService
 import com.yuukaze.i18next.service.PsiElementSet
+import com.yuukaze.i18next.service.getEasyI18nReferenceService
+import com.yuukaze.i18next.util.IOUtil
+import com.yuukaze.reduxkotlin.thunk.Thunk
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.runBlocking
+
+data class InitProjectAction(val project: Project)
 
 data class SearchAction(val text: String)
 
@@ -40,6 +50,29 @@ enum class TableFilterMode {
 
 data class TableFilterAction(val mode: TableFilterMode)
 
-data class ReloadPsi(val map: Map<String, PsiElementSet>){
-  override fun toString(): String ="ReloadPsi(map.size=${map.size})"
+data class ReloadPsi(val map: Map<String, PsiElementSet>) {
+  override fun toString(): String = "ReloadPsi(map.size=${map.size})"
+}
+
+fun reloadI18nData(): Thunk<AppState> = { dispatch, getState, extraArg ->
+  runBlocking {
+    val project = getState().project!!
+    listOf(async {
+      lateinit var translations: Translations
+      val localesPath = project.getService(
+        EasyI18nSettingsService::class.java
+      ).state.localesPath
+      if (localesPath.isEmpty()) {
+        translations = Translations()
+      } else {
+        val io = IOUtil.determineFormat(localesPath)
+        io.read(localesPath) {
+          translations = it ?: Translations()
+        }
+      }
+      dispatch(ReloadTranslations(translations = translations))
+    }, async {
+      project.getEasyI18nReferenceService().processAll()
+    }).awaitAll()
+  }
 }

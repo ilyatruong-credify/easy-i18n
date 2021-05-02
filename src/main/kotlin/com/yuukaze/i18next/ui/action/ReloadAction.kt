@@ -1,12 +1,10 @@
 package com.yuukaze.i18next.ui.action
 
 import com.intellij.icons.AllIcons
-import com.intellij.lang.javascript.TypeScriptJSXFileType
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
-import com.intellij.psi.search.FileTypeIndex
-import com.intellij.psi.search.GlobalSearchScope
-import com.yuukaze.i18next.service.DataStore
+import com.yuukaze.i18next.data.i18nStore
+import com.yuukaze.i18next.data.reloadI18nData
 import com.yuukaze.i18next.service.Notifier
 import java.util.*
 
@@ -20,12 +18,7 @@ class ReloadAction : AnAction(
   null, AllIcons.Actions.Refresh
 ) {
   override fun actionPerformed(e: AnActionEvent) {
-    //TODO
-    val files = FileTypeIndex.getFiles(
-      TypeScriptJSXFileType.INSTANCE,
-      GlobalSearchScope.projectScope(e.project!!)
-    )
-    DataStore.getInstance(e.project!!).reloadFromDisk()
+    i18nStore.dispatch(reloadI18nData())
     Notifier.notifySuccess(e.project, "Reload from disk success")
   }
 }

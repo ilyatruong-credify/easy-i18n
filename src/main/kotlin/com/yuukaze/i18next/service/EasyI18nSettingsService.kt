@@ -4,6 +4,8 @@ import com.intellij.openapi.components.PersistentStateComponent
 import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.components.State
 import com.intellij.openapi.project.Project
+import com.yuukaze.i18next.data.InitProjectAction
+import com.yuukaze.i18next.data.i18nStore
 import com.yuukaze.i18next.factory.I18nAppFactory
 import com.yuukaze.i18next.lang.JsxAttributeFactory
 import com.yuukaze.i18next.lang.JsxAttributeWithStringTemplateFactory
@@ -32,6 +34,7 @@ class EasyI18nSettingsService(project: Project) :
 
   init {
     state = SettingsState()
+    i18nStore.dispatch(InitProjectAction(project = project))
   }
 
   fun mainFactory(): I18nAppFactory =

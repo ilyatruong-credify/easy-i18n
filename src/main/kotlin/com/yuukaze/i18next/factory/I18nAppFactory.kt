@@ -9,5 +9,5 @@ interface LanguageFactory {
 
 class I18nAppFactory(private val languageFactories: List<LanguageFactory>) {
   fun translationExtractors(): List<TranslationExtractor> =
-    languageFactories.map {it.translationExtractor()}
+    languageFactories.map { it.translationExtractor() }
 }

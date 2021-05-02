@@ -30,6 +30,8 @@ interface TranslationExtractor {
   /**
    * Get template to substitute translation with
    */
-  fun template(element: PsiElement): (argument: KeyedTranslation) -> String = {"i18n.t(${it.key})"}
+  fun template(element: PsiElement): (argument: KeyedTranslation) -> String =
+    { "i18n.t(${it.key})" }
+
   fun postProcess(editor: Editor, offset: Int) {}
 }

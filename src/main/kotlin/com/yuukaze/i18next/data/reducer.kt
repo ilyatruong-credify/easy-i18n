@@ -1,13 +1,16 @@
 package com.yuukaze.i18next.data
 
+import com.intellij.openapi.project.Project
 import com.yuukaze.i18next.model.KeyedTranslation
 import com.yuukaze.i18next.model.LocalizedNode
 import com.yuukaze.i18next.model.Translations
 import com.yuukaze.i18next.service.PsiElementSet
 import com.yuukaze.i18next.util.TranslationsUtil
+import com.yuukaze.reduxkotlin.thunk.createThunkMiddleware
 import org.reduxkotlin.*
 
 data class AppState(
+  val project: Project? = null,
   val searchText: String = "",
   val filter: TableFilterMode = TableFilterMode.ALL,
   val translations: Translations? = null,
@@ -56,6 +59,7 @@ fun processUpdate(
 
 val reducer: Reducer<AppState> = { state, action ->
   when (action) {
+    is InitProjectAction -> state.copy(project = action.project)
     is SearchAction -> state.copy(searchText = action.text)
     is ReloadTranslations -> state.copy(translations = action.translations)
     is UpdateTranslation -> state.copy(
@@ -81,5 +85,5 @@ fun loggerMiddleware(store: Store<AppState>) = { next: Dispatcher ->
 val i18nStore = createThreadSafeStore(
   reducer,
   AppState(),
-  applyMiddleware(::loggerMiddleware)
+  applyMiddleware(::loggerMiddleware, createThunkMiddleware())
 )

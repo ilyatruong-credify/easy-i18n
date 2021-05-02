@@ -6,6 +6,7 @@ import com.intellij.lang.javascript.TypeScriptJSXFileType
 import com.intellij.lang.javascript.psi.JSCallExpression
 import com.intellij.openapi.application.ReadAction
 import com.intellij.openapi.components.ServiceManager
+import com.intellij.openapi.progress.runBackgroundableTask
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiElement
@@ -46,16 +47,26 @@ class I18nKeyReferenceManager(private val project: Project) {
     map[unquotedKey]!!.add(element)
   }
 
-  private fun <T : PsiFile> T.getI18nHookCallElement(callback: (String, PsiElement) -> Unit) =
+  private fun <T : PsiFile> T.getI18nEntryElement(callback: (String, PsiElement) -> Unit) =
     PsiTreeUtil.processElements(this, I18nEntryProcessor(callback))
 
   fun processAll(callback: (Map<String, PsiElementSet>) -> Unit) {
-    ReadAction.nonBlocking {
-      for (f in virtualJsFiles)
-        PsiManager.getInstance(project).findFile(f)
-          ?.getI18nHookCallElement(this::addElementToMap)
-      callback(map)
-    }.inSmartMode(project).executeSynchronously()
+    runBackgroundableTask("Scanning i18n entries...", project, false) {
+      it.isIndeterminate = false
+      ReadAction
+        .nonBlocking {
+          val length = virtualJsFiles.size
+          var i = 0
+          for (f in virtualJsFiles) {
+            it.fraction = (++i).toDouble() / length
+            PsiManager.getInstance(project).findFile(f)
+              ?.getI18nEntryElement(this::addElementToMap)
+          }
+          callback(map)
+        }.inSmartMode(project)
+        .executeSynchronously()
+    }
+
   }
 
   fun processAll() {
