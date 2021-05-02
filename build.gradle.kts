@@ -36,6 +36,7 @@ dependencies {
   implementation("org.reduxkotlin:redux-kotlin-threadsafe:0.5.5")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.3")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-swing:1.4.3")
+  implementation("org.jetbrains.kotlin:kotlin-reflect:1.4.32")
 }
 
 // Configure gradle-intellij-plugin plugin.

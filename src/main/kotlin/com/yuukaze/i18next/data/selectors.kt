@@ -33,4 +33,20 @@ object I18nReduxSelectors {
       it.clone(it.nodes.children.filter(filterFn))
     }
   }
+
+//  val filter = i18nStore.reselectors(
+//    { it.searchText },
+//    { it.filter },
+//    { it.psiMap }
+//  ) { searchText, filter, psiMap ->
+//    foldAnd(
+//      listOf(
+//        { node -> node.key.startsWith(searchText) },
+//        when (filter) {
+//          TableFilterMode.SHOW_UNUSED -> unusedFilter(psiMap!!)
+//          else -> ::primitiveFilterFn
+//        }
+//      )
+//    )
+//  }
 }

@@ -14,8 +14,7 @@ import java.awt.event.FocusEvent
 import java.awt.event.FocusListener
 
 class MigrateDialog(private val project: Project) {
-
-  private var replacePattern: String = ""
+  var replacePattern: String = ""
   private val fullKeys
     get() = project.getEasyI18nDataStore().translations.fullKeysWithoutPreview.filter {
       if (findPattern.isEmpty()) true else findPattern.toRegex()

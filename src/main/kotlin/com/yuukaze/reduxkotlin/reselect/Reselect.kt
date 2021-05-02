@@ -1,3 +1,5 @@
+@file:Suppress("FunctionName")
+
 package com.yuukaze.reduxkotlin.reselect
 
 import org.reduxkotlin.Store
@@ -204,14 +206,14 @@ class TypedSelectorBuilder<S : Any> {
     }
 }
 
-private fun <State : Any, T> Store<State>.reselectors(
-  selectorSubscriberBuilderInit: SelectorSubscriberBuilder<State, T>.() -> Unit
+private fun <State : Any, T> Store<State>._reselectors(
+  init: SelectorSubscriberBuilder<State, T>.() -> Unit
 ): StoreSubscriber {
   val subscriberBuilder = SelectorSubscriberBuilder<State, T>(this)
-  subscriberBuilder.selectorSubscriberBuilderInit()
+  subscriberBuilder.init()
   val sub = {
     subscriberBuilder.selectorList.forEach { entry ->
-      entry.key.onChangeIn(getState()) { entry.value(it) }
+      entry.key.onChangeIn(state) { entry.value(it) }
     }
     subscriberBuilder.withAnyChangeFun?.invoke()
     Unit
@@ -221,13 +223,36 @@ private fun <State : Any, T> Store<State>.reselectors(
   return this.subscribe(sub)
 }
 
+//fun <State : Any, T1, T2, T> Store<State>.reselectors(
+//  initT1: TStateMap<T1, State>,
+//  initT2: TStateMap<T2, State>,
+//  combiner: (T1, T2) -> T
+//) = @Suppress("UNCHECKED_CAST")
+//fun(action: TAction<T>): StoreSubscriber =
+//  this.reselectors1(listOf(initT1, initT2), combiner as KFunction<T>, action)
+//
+//fun <State : Any, T1, T2, T3, T> Store<State>.reselectors(
+//  initT1: TStateMap<T1, State>,
+//  initT2: TStateMap<T2, State>,
+//  initT3: TStateMap<T3, State>,
+//  combiner: (T1, T2, T3) -> T
+//) = @Suppress("UNCHECKED_CAST")
+//fun(action: TAction<T>): StoreSubscriber =
+//  this.reselectors1(listOf(initT1, initT2), combiner as KFunction<T>, action)
+//
+//private fun <State : Any, T> Store<State>.reselectors1(
+//  init: List<TStateMap<*, State>>,
+//  combiner: KFunction<T>,
+//  action: TAction<T>
+//): StoreSubscriber =
+//  TODO()
 
 fun <State : Any, T> Store<State>.reselect(
   selector: TStateMap<T, State>,
   action: TAction<T>
 ): StoreSubscriber {
-  return this.reselectors<State, T> {
-    select(selector, action)
+  return this._reselectors<State, T> {
+    reselect(selector, action)
   }
 }
 
