@@ -3,7 +3,7 @@ package com.yuukaze.i18next.ui.renderer
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.project.Project
 import com.intellij.ui.JBColor
-import com.yuukaze.i18next.service.getEasyI18nReferenceService
+import com.yuukaze.i18next.data.i18nStore
 import java.awt.Component
 import javax.swing.Icon
 import javax.swing.JLabel
@@ -46,7 +46,9 @@ class CustomTableCellRenderer(val project: Project) :
       )
       component.icon = icon
     } else component.icon = null
-    if (column == 0 && missesValues(row, table!!)) {
+    if (unusedValues(row, table!!)) {
+      component.foreground = JBColor.GRAY
+    } else if (column == 0 && missesValues(row, table)) {
       component.foreground = JBColor.RED
     } else { // Reset color
       component.foreground = null
@@ -55,9 +57,11 @@ class CustomTableCellRenderer(val project: Project) :
   }
 
   private fun unusedValues(row: Int, table: JTable): Boolean =
-    table.getValueAt(row, 0).let {
-      (project.getEasyI18nReferenceService().map[it!!]?.count() ?: 0) == 0
-    }
+    i18nStore.state.psiMap?.let { psiMap ->
+      table.getValueAt(row, 0).let {
+        (psiMap[it!!]?.count() ?: 0) == 0
+      }
+    } ?: true
 
   private fun missesValues(row: Int, table: JTable): Boolean {
     val columns = table.columnCount
