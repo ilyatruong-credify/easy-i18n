@@ -17,31 +17,39 @@ import com.yuukaze.i18next.ui.renderer.CustomTableCellRenderer
 import com.yuukaze.i18next.ui.renderer.CustomTableHeaderCellRenderer
 import com.yuukaze.i18next.utils.JComponentWrapper
 import java.awt.event.ActionEvent
+import java.awt.event.KeyEvent
 import java.awt.event.MouseEvent
 import java.beans.PropertyChangeListener
 import java.util.*
 import javax.swing.Action
+import javax.swing.ActionMap
+import javax.swing.InputMap
+import javax.swing.JComponent.WHEN_FOCUSED
+import javax.swing.KeyStroke
+
 
 /**
  * Shows translation state as table.
  */
 class TableView(private val project: Project?) :
   JComponentWrapper<JBScrollPane> {
+  private val actionDelete = TableViewAction("Delete", this::handleDelete)
   val table: JBTable = JBTable().apply {
     border = JBUI.Borders.empty()
     emptyText.text =
       ResourceBundle.getBundle("messages").getString("view.empty")
+    componentPopupMenu = popupMenu
+    handleDeleteKey(actionDelete)
   }
   private val filterUntranslated = FilterUntranslatedModel()
   private val popupMenu = JBPopupMenu().let {
     it.add(JBMenuItem(TableViewAction("Edit...", this::handleEdit)))
     it.add(JBMenuItem(TableViewAction("Migrate...", this::handleMigrate)))
-    it.add(JBMenuItem(TableViewAction("Delete", this::handleDelete)))
+    it.add(JBMenuItem(actionDelete))
     it
   }
 
   init {
-    table.componentPopupMenu = popupMenu
     table.setDefaultRenderer(
       String::class.java,
       CustomTableCellRenderer(project!!)
@@ -89,7 +97,7 @@ class TableView(private val project: Project?) :
         {
           val dataStore = project.getEasyI18nDataStore()
           dataStore.translations.nodes.removeChildren(key)
-          dataStore.doSync()
+          dataStore.doWriteToDisk()
         }, 0
       ).showCenteredInCurrentWindow(project!!)
   }
@@ -124,4 +132,17 @@ class TableView(private val project: Project?) :
     get() = JBScrollPane(table).apply {
       border = JBUI.Borders.empty(1, 1, 0, 0)
     }
+}
+
+fun JBTable.handleDeleteKey(action: Action) {
+  val table = this
+  val inputMap: InputMap = table.getInputMap(WHEN_FOCUSED)
+  val actionMap: ActionMap = table.actionMap
+
+  val deleteAction = "delete"
+  inputMap.put(
+    KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0),
+    deleteAction
+  )
+  actionMap.put(deleteAction, action)
 }

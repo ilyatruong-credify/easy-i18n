@@ -43,17 +43,16 @@ class DataStore private constructor(private val project: Project) {
    * @param callback Complete callback. Indicates if operation was successful(true) or not
    */
   private fun saveToDisk(callback: Consumer<Boolean>) {
-    val localesPath = project.getService(
-      EasyI18nSettingsService::class.java
-    ).state.localesPath
-    if (localesPath.isEmpty()) { // Cannot save without valid path
+    val localesPath = project.getEasyI18nService().state.localesPath
+    // Cannot save without valid path
+    if (localesPath.isEmpty()) {
       return
     }
     val io = IOUtil.determineFormat(localesPath)
     io.save(translations, localesPath, callback)
   }
 
-  fun doSync() {
+  fun doWriteToDisk() {
     saveToDisk { success: Boolean ->
       if (success) {
         i18nStore.dispatch(ReloadTranslations(translations = translations))

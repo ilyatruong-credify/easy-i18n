@@ -63,7 +63,7 @@ class MigrateDialog(private val project: Project) {
           project.getEasyI18nDataStore().translations.changeKey(key, newKey)
       }
       run {
-        project.getEasyI18nDataStore().doSync()
+        project.getEasyI18nDataStore().doWriteToDisk()
       }
     }
   }

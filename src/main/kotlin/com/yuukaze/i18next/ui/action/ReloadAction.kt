@@ -10,8 +10,6 @@ import java.util.*
 
 /**
  * Reload translations action.
- *
- * @author marhali
  */
 class ReloadAction : AnAction(
   ResourceBundle.getBundle("messages").getString("action.reload"),

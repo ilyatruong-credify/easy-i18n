@@ -17,6 +17,8 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.search.PsiElementProcessor
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.util.elementType
+import com.intellij.psi.xml.XmlAttribute
+import com.intellij.psi.xml.XmlTag
 import com.yuukaze.i18next.data.ReloadPsi
 import com.yuukaze.i18next.data.i18nStore
 
@@ -91,9 +93,22 @@ class I18nKeyReferenceManager(private val project: Project) {
       return validate
     }
 
+    private fun processTransTag(element: PsiElement): Boolean {
+      if (element !is XmlAttribute) return false;
+      if (element.name != "i18nKey" || element.value == null) return false;
+      val parent = PsiTreeUtil.getParentOfType(element, XmlTag::class.java)
+      if (parent?.name != "Trans") return false;
+
+      callback(element.value!!, element.valueElement!!.children[1])
+      return true;
+    }
+
     override fun execute(element: PsiElement): Boolean {
-      listOf(this::processHookCall).fold(true) { r, t ->
-        if (r) r && t(element)
+      listOf(
+        this::processHookCall,
+        this::processTransTag
+      ).fold(false) { r, test ->
+        if (!r) r or test(element)
         else r
       }
       return true
