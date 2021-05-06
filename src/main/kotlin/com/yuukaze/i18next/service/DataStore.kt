@@ -11,7 +11,7 @@ import java.util.function.Consumer
 /**
  * Singleton service to manage localized messages.
  */
-class DataStore private constructor(private val project: Project) {
+class DataStore(private val project: Project) {
   /**
    * @return Current translation state
    */
@@ -57,17 +57,6 @@ class DataStore private constructor(private val project: Project) {
       if (success) {
         i18nStore.dispatch(ReloadTranslations(translations = translations))
       }
-    }
-  }
-
-  companion object {
-    private var INSTANCE: DataStore? = null
-
-    @JvmStatic
-    fun getInstance(project: Project): DataStore {
-      return if (INSTANCE == null) DataStore(project).also {
-        INSTANCE = it
-      } else INSTANCE!!
     }
   }
 }

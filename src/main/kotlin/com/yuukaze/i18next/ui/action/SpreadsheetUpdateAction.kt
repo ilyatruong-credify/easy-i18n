@@ -6,9 +6,9 @@ import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.project.Project
 import com.yuukaze.i18next.data.ReloadTranslations
 import com.yuukaze.i18next.data.i18nStore
-import com.yuukaze.i18next.service.DataStore
 import com.yuukaze.i18next.service.Notifier
 import com.yuukaze.i18next.service.SpreadsheetExecutorBase
+import com.yuukaze.i18next.service.getEasyI18nDataStore
 import java.io.IOException
 import java.util.stream.Collectors
 
@@ -27,7 +27,7 @@ class SpreadsheetUpdateAction :
             .values()[spreadsheetId, SPREADSHEET_RANGE].execute()
         val values = result.getValues()
 
-        val translations = DataStore.getInstance(project).translations
+        val translations = project.getEasyI18nDataStore().translations
         val locales = translations.locales
         val rows = values.stream().skip(1).collect(Collectors.toList())
         for (row in rows) {

@@ -1,5 +1,6 @@
 package com.yuukaze.i18next.service
 
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.components.PersistentStateComponent
 import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.components.State
@@ -18,10 +19,10 @@ import com.yuukaze.i18next.model.SettingsState
  */
 @State(name = "EasyI18nSettings")
 class EasyI18nSettingsService(project: Project) :
-  PersistentStateComponent<SettingsState> {
+  PersistentStateComponent<SettingsState>, Disposable {
 
   private var state: SettingsState
-  val dataStore: DataStore = DataStore.getInstance(project)
+  val dataStore = DataStore(project)
 
 
   override fun getState(): SettingsState {
@@ -47,6 +48,10 @@ class EasyI18nSettingsService(project: Project) :
         )
       ).flatten()
     )
+
+  override fun dispose() {
+
+  }
 }
 
 fun <T : Project?> T.getEasyI18nService(): EasyI18nSettingsService =

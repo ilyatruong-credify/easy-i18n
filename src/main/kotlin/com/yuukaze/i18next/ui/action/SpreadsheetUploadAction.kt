@@ -6,9 +6,9 @@ import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.project.Project
 import com.yuukaze.i18next.model.spreadsheet.SpreadsheetUploadModel
-import com.yuukaze.i18next.service.DataStore
 import com.yuukaze.i18next.service.Notifier
 import com.yuukaze.i18next.service.SpreadsheetExecutorBase
+import com.yuukaze.i18next.service.getEasyI18nDataStore
 import java.io.IOException
 
 class SpreadsheetUploadAction :
@@ -20,7 +20,7 @@ class SpreadsheetUploadAction :
 
   class Executor(project: Project?) : SpreadsheetExecutorBase(project) {
     override fun run() {
-      val translations = DataStore.getInstance(project).translations
+      val translations = project.getEasyI18nDataStore().translations
       val body = ValueRange().setValues(SpreadsheetUploadModel(translations))
       try {
         val result =

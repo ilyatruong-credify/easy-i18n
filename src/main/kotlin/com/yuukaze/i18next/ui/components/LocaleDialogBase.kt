@@ -21,7 +21,13 @@ abstract class LocaleDialogBase protected constructor(
 
   protected var keyTextField: I18nAutoCompleteTextField? = null
 
-  private val entryFields = locales.associateWith { createLocaleTextField(it) }
+  private val entryFields by lazy {
+    locales.associateWith {
+      createLocaleTextField(
+        it
+      )
+    }
+  }
 
   protected val entry: Map<String, String>
     get() = entryFields.mapValues { (_, field) -> field.text }
