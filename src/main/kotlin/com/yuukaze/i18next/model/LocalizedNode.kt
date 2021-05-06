@@ -55,6 +55,16 @@ class LocalizedNode {
       _value = value
     }
 
+  /**
+   * Check if node has any missing translation
+   * Notice: node must be leaf, that means no children
+   */
+  val isMissing: Boolean
+    get() {
+      if (!isLeaf) return false;
+      return _value.values.fold(false) { acc, it -> acc || it.isEmpty() }
+    }
+
   companion object {
     const val ROOT_KEY = "root"
   }

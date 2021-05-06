@@ -16,6 +16,7 @@ private val unusedFilter = { psiMap: Map<String, PsiElementSet> ->
     (psiMap[node.key]?.size ?: 0) == 0
   }
 }.memoize(10240)
+private val missingFilter = { node: LocalizedNode -> node.isMissing }
 
 object I18nReduxSelectors {
   val filteredTranslations = i18nStore.reselect { state ->
@@ -25,6 +26,7 @@ object I18nReduxSelectors {
         { node -> node.key.startsWith(searchText) },
         when (state.filter) {
           TableFilterMode.SHOW_UNUSED -> unusedFilter(state.psiMap!!)
+          TableFilterMode.SHOW_MISSING-> missingFilter
           else -> ::primitiveFilterFn
         }
       )
@@ -33,20 +35,4 @@ object I18nReduxSelectors {
       it.clone(it.nodes.children.filter(filterFn))
     }
   }
-
-//  val filter = i18nStore.reselectors(
-//    { it.searchText },
-//    { it.filter },
-//    { it.psiMap }
-//  ) { searchText, filter, psiMap ->
-//    foldAnd(
-//      listOf(
-//        { node -> node.key.startsWith(searchText) },
-//        when (filter) {
-//          TableFilterMode.SHOW_UNUSED -> unusedFilter(psiMap!!)
-//          else -> ::primitiveFilterFn
-//        }
-//      )
-//    )
-//  }
 }
