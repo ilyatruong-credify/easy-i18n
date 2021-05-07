@@ -28,6 +28,7 @@ repositories {
   jcenter()
 }
 dependencies {
+  testImplementation("org.junit.jupiter:junit-jupiter:5.7.0")
   detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.15.0")
   implementation("com.google.api-client:google-api-client:1.31.3")
   implementation("com.google.apis:google-api-services-sheets:v4-rev581-1.25.0")
@@ -37,6 +38,7 @@ dependencies {
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.3")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-swing:1.4.3")
   implementation("org.jetbrains.kotlin:kotlin-reflect:1.4.32")
+  testImplementation(kotlin("test"))
 }
 
 // Configure gradle-intellij-plugin plugin.
@@ -129,5 +131,9 @@ tasks {
     // https://plugins.jetbrains.com/docs/intellij/deployment.html#specifying-a-release-channel
     channels(properties("pluginVersion").split("-").getOrElse(1) { "default" }
       .split(".").first())
+  }
+
+  test {
+    useJUnitPlatform()
   }
 }
