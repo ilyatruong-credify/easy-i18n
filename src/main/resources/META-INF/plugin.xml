@@ -23,6 +23,7 @@
                            displayType="BALLOON"/>
         <intentionAction>
             <className>com.yuukaze.i18next.actions.TextReplacer</className>
+            <className>com.yuukaze.i18next.actions.GoToI18nTable</className>
         </intentionAction>
     </extensions>
 </idea-plugin>

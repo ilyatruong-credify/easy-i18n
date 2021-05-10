@@ -5,6 +5,7 @@ import com.intellij.openapi.actionSystem.ActionPlaces
 import com.intellij.openapi.actionSystem.DefaultActionGroup
 import com.intellij.openapi.actionSystem.Separator
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.wm.ToolWindow
 import com.intellij.ui.IdeBorderFactory
 import com.intellij.ui.OnePixelSplitter
 import com.intellij.ui.SideBorder
@@ -17,12 +18,12 @@ import com.yuukaze.i18next.utils.border
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @ExperimentalCoroutinesApi
-class I18nToolWindow(project: Project) {
+class I18nToolWindow(project: Project, val toolWindow: ToolWindow) {
   val tableView by lazy { TableView(project) }
-  val searchKeyView = SearchKeyView()
-  val rootKeyTreeView by lazy { RootKeyTreeView(project) }
+  private val searchKeyView = SearchKeyView()
+  private val rootKeyTreeView by lazy { RootKeyTreeView(project) }
 
-  val toolbar = ActionManager.getInstance()
+  private val toolbar = ActionManager.getInstance()
     .createActionToolbar(
       ActionPlaces.UNKNOWN, DefaultActionGroup(
         ReloadAction(),
@@ -31,27 +32,28 @@ class I18nToolWindow(project: Project) {
       ), false
     )
 
-  val rootPanel
-    get() = border {
-      addToLeft(border {
+  val rootPanel by lazy {
+    border {
+      left += border {
         border = IdeBorderFactory.createBorder(SideBorder.RIGHT)
         addToCenter(toolbar.component.apply {
           border = JBUI.Borders.empty(2)
         })
-      })
-      addToCenter(OnePixelSplitter(false, 0.25f).apply {
+      }
+      center += OnePixelSplitter(false, 0.25f).apply {
         firstComponent = border {
           border = JBUI.Borders.empty()
-          addToTop(border {
+          top += border {
             border = IdeBorderFactory.createBorder(SideBorder.BOTTOM)
             addToCenter(NonOpaquePanel(searchKeyView.component))
-          })
-          addToCenter(rootKeyTreeView.component)
+          }
+          center += rootKeyTreeView.component
         }
         I18nReduxSelectors.filteredTranslations {
           if (it !== null)
             secondComponent = tableView.component
         }
-      })
+      }
     }
+  }
 }

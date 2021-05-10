@@ -5,7 +5,6 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.util.Consumer
-import com.yuukaze.i18next.model.KeyedTranslation
 import com.yuukaze.i18next.service.getEasyI18nDataStore
 import com.yuukaze.i18next.ui.dialog.AddDialog
 import com.yuukaze.i18next.utils.KeyMatcherBuilder
@@ -16,7 +15,7 @@ object KeyRequest {
     project: Project,
     text: String,
     editor: Editor,
-    callback: Consumer<KeyedTranslation>
+    callback: Consumer<Any>
   ) {
     val translations = project.getEasyI18nDataStore().translations
     val fullKeys = translations.fullKeys.mapNotNull {
@@ -42,7 +41,7 @@ object KeyRequest {
           .setCancelOnWindowDeactivation(false)
           .setItemChosenCallback {
             run {
-//              callback.consume(project.getKeyedFromPair(it))
+              callback.consume(it)
             }
           }
           .createPopup()

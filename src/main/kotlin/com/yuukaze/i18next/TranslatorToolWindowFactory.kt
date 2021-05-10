@@ -13,6 +13,7 @@ import com.yuukaze.i18next.ui.action.AddAction
 import com.yuukaze.i18next.ui.action.SettingsAction
 import com.yuukaze.i18next.ui.action.SpreadsheetUpdateAction
 import com.yuukaze.i18next.ui.action.SpreadsheetUploadAction
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import java.util.*
 
 /**
@@ -23,14 +24,22 @@ class TranslatorToolWindowFactory : ToolWindowFactory {
     toolWindow.setIcon(Icons.ToolWindowIcon)
   }
 
+  internal companion object {
+    val mapper = mutableMapOf<Project, I18nToolWindow>()
+    fun getToolWindow(project: Project): I18nToolWindow = mapper[project]!!
+  }
+
+  @ExperimentalCoroutinesApi
   override fun createToolWindowContent(
     project: Project,
     toolWindow: ToolWindow
   ) {
-    val contentFactory = ContentFactory.SERVICE.getInstance()
-
     // Translations table view
-    val toolWindowComponent = I18nToolWindow(project)
+    val contentFactory = ContentFactory.SERVICE.getInstance()
+    val toolWindowComponent = I18nToolWindow(project, toolWindow)
+    //add to map
+    mapper[project] = toolWindowComponent
+
     val tableContent = contentFactory.createContent(
       toolWindowComponent.rootPanel,
       ResourceBundle.getBundle("messages").getString("view.table.title"), false
@@ -59,3 +68,7 @@ class TranslatorToolWindowFactory : ToolWindowFactory {
     store.reloadFromDisk()
   }
 }
+
+@ExperimentalCoroutinesApi
+fun Project.openToolWindow() =
+  TranslatorToolWindowFactory.getToolWindow(this).apply { toolWindow.show() }

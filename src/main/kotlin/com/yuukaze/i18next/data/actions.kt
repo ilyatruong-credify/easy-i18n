@@ -54,6 +54,8 @@ data class ReloadPsi(val map: Map<String, PsiElementSet>) {
   override fun toString(): String = "ReloadPsi(map.size=${map.size})"
 }
 
+data class SelectKeyAction(val key:String)
+
 fun reloadI18nData(): Thunk<AppState> = { dispatch, getState, extraArg ->
   runBlocking {
     val project = getState().project!!
@@ -75,4 +77,8 @@ fun reloadI18nData(): Thunk<AppState> = { dispatch, getState, extraArg ->
       project.getEasyI18nReferenceService().processAll()
     }).awaitAll()
   }
+}
+
+fun selectI18nKey(key:String){
+  i18nStore.dispatch(SelectKeyAction(key = key))
 }

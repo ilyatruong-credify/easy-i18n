@@ -14,8 +14,7 @@ import com.yuukaze.i18next.actions.KeyRequest.manipulateTranslationKey
 import com.yuukaze.i18next.factory.TranslationExtractor
 import com.yuukaze.i18next.model.KeyedTranslation
 import com.yuukaze.i18next.service.getEasyI18nService
-import com.yuukaze.i18next.utils.memoize
-import com.yuukaze.i18next.utils.whenMatches
+import com.yuukaze.i18next.utils.*
 import java.awt.Toolkit
 import java.awt.datatransfer.StringSelection
 import java.util.*
@@ -78,13 +77,23 @@ class TextReplacer : PsiElementBaseIntentionAction(), IntentionAction {
         project,
         text,
         editor
-      ) { key -> replaceFromPsi(key, editor, element, extractor) }
+      ) { key ->
+        //replaceFromPsi(key, editor, element, extractor)
+      }
     }
   }
 
-  private fun addToClipboard(s: KeyedTranslation) {
+  private fun addToClipboard(s: Any) {
     val clipboard = Toolkit.getDefaultToolkit().systemClipboard
-    val selection = StringSelection("t(\"${s.key}\")")
+    val selection = StringSelection(
+      when (s) {
+        is SingleKeyMatcher -> "t(\"${s.key}\")"
+        is VariableKeyMatcher -> "t(\"${s.key}\", ${
+          s.params.toI18nParamsObject()
+        })"
+        else -> throw Error("Must be a key matcher")
+      }
+    )
     clipboard.setContents(selection, selection)
   }
 

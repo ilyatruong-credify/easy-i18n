@@ -48,6 +48,8 @@ class TableModelTranslator(
     return node?.value?.get(locale) ?: ""
   }
 
+  fun getTranslationKeyRowIndex(key: String) = fullKeys.indexOf(key)
+
   override fun setValueAt(aValue: Any, rowIndex: Int, columnIndex: Int) {
     val key = getValueAt(rowIndex, 0).toString()
     val node = translations.getNode(key)

@@ -14,7 +14,8 @@ data class AppState(
   val searchText: String = "",
   val filter: TableFilterMode = TableFilterMode.ALL,
   val translations: Translations? = null,
-  val psiMap: Map<String, PsiElementSet>? = null
+  val psiMap: Map<String, PsiElementSet>? = null,
+  val selectKey: LocalizedNode? = null
 )
 
 fun processUpdate(
@@ -70,6 +71,11 @@ val reducer: Reducer<AppState> = { state, action ->
     )
     is TableFilterAction -> state.copy(filter = action.mode)
     is ReloadPsi -> state.copy(psiMap = action.map)
+    is SelectKeyAction -> state.copy(
+      selectKey = state.translations!!.nodes.getChildren(
+        action.key
+      )
+    )
     else -> state
   }
 }

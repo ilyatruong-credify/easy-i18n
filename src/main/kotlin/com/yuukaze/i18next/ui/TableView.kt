@@ -10,6 +10,7 @@ import com.intellij.util.ui.JBUI
 import com.yuukaze.i18next.data.I18nReduxSelectors
 import com.yuukaze.i18next.model.TableModelTranslator
 import com.yuukaze.i18next.service.getEasyI18nDataStore
+import com.yuukaze.i18next.ui.action.DuplicateAction
 import com.yuukaze.i18next.ui.dialog.MigrateDialog
 import com.yuukaze.i18next.ui.listener.DoubleClickListener
 import com.yuukaze.i18next.ui.model.FilterUntranslatedModel
@@ -18,14 +19,14 @@ import com.yuukaze.i18next.ui.renderer.CustomTableHeaderCellRenderer
 import com.yuukaze.i18next.utils.JComponentWrapper
 import java.awt.event.ActionEvent
 import java.awt.event.KeyEvent
+import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
 import java.beans.PropertyChangeListener
 import java.util.*
-import javax.swing.Action
-import javax.swing.ActionMap
-import javax.swing.InputMap
+import javax.swing.*
 import javax.swing.JComponent.WHEN_FOCUSED
-import javax.swing.KeyStroke
+import javax.swing.event.PopupMenuEvent
+import javax.swing.event.PopupMenuListener
 
 
 /**
@@ -38,26 +39,73 @@ class TableView(private val project: Project?) :
     border = JBUI.Borders.empty()
     emptyText.text =
       ResourceBundle.getBundle("messages").getString("view.empty")
-    componentPopupMenu = popupMenu
     handleDeleteKey(actionDelete)
   }
   private val filterUntranslated = FilterUntranslatedModel()
-  private val popupMenu = JBPopupMenu().let {
-    it.add(JBMenuItem(TableViewAction("Edit...", this::handleEdit)))
-    it.add(JBMenuItem(TableViewAction("Migrate...", this::handleMigrate)))
-    it.add(JBMenuItem(actionDelete))
-    it
+  private val popupMenu by lazy {
+    val duplicate = DuplicateAction(table)
+    JBPopupMenu().let {
+      it.add(JBMenuItem(TableViewAction("Edit...", this::handleEdit)))
+      it.add(JBMenuItem(duplicate))
+      it.add(JBMenuItem(TableViewAction("Migrate...", this::handleMigrate)))
+      it.add(JBMenuItem(actionDelete))
+      it.addPopupMenuListener(object : PopupMenuListener {
+        override fun popupMenuWillBecomeVisible(e: PopupMenuEvent?) {
+          duplicate.location = it.location
+          duplicate.key = table.getValueAt(table.selectedRow, 0) as String
+        }
+
+        override fun popupMenuWillBecomeInvisible(e: PopupMenuEvent?) {
+        }
+
+        override fun popupMenuCanceled(e: PopupMenuEvent?) {
+        }
+
+      })
+      it
+    }
   }
 
   init {
-    table.setDefaultRenderer(
-      String::class.java,
-      CustomTableCellRenderer(project!!)
-    )
+    table.apply {
+      addMouseListener(object : MouseAdapter() {
+        override fun mousePressed(e: MouseEvent?) {
+          val currentRow = table.rowAtPoint(e!!.point)
+          table.setRowSelectionInterval(currentRow, currentRow)
+          val rowindex = table.selectedRow;
+          if (rowindex < 0)
+            return;
+          if (e.isPopupTrigger && e.component is JTable) {
+//            popupMenu.location
+            popupMenu.show(e.component, e.x, e.y)
+          }
+        }
+      })
+      setDefaultRenderer(
+        String::class.java,
+        CustomTableCellRenderer(project!!)
+      )
+    }
     setupTableHeader()
     I18nReduxSelectors.filteredTranslations {
       table.model = TableModelTranslator(it!!)
     }
+    I18nReduxSelectors.onSelectionChanged {
+      if (it != null)
+        scrollToSpecificKey(it.key)
+    }
+  }
+
+  private fun scrollToSpecificKey(key: String) {
+    val rowIndex =
+      (table.model as TableModelTranslator).getTranslationKeyRowIndex(key)
+    val rect = table.getCellRect(
+      rowIndex,
+      0,
+      true
+    )
+    table.scrollRectToVisible(rect)
+    table.setRowSelectionInterval(rowIndex, rowIndex)
   }
 
   private fun setupTableHeader() {

@@ -35,4 +35,5 @@ object I18nReduxSelectors {
       it.clone(it.nodes.children.filter(filterFn))
     }
   }
+  val onSelectionChanged = i18nStore.reselect { it.selectKey }
 }

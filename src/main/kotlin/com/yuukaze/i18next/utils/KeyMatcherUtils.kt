@@ -26,7 +26,7 @@ class VariableKeyMatcher private constructor(
   val params: Map<String, String>
 ) {
   companion object : KeyMatcherRunner<VariableKeyMatcher> {
-    val regex = Regex("\\{\\{([^}]+)}}")
+    private val regex = Regex("\\{\\{([^}]+)}}")
 
     override fun run(
       text: String,
@@ -41,11 +41,14 @@ class VariableKeyMatcher private constructor(
         var index = 0
         return VariableKeyMatcher(
           key = rawKey.first,
-          params = match.groupValues.drop(1).associateWith { textMatch[++index] })
+          params = match.groupValues.drop(1)
+            .associateWith { textMatch[++index] })
       }
       return null;
     }
   }
+
+  override fun toString(): String = key
 }
 
 class SingleKeyMatcher private constructor(val key: String) {
@@ -57,3 +60,8 @@ class SingleKeyMatcher private constructor(val key: String) {
       if (rawKey.second == text) SingleKeyMatcher(rawKey.first) else null
   }
 }
+
+fun Map<String, String>.toI18nParamsObject(): String =
+  this.map { "${it.key}:${it.value}" }.reduce { acc, v ->
+    "$acc,$v"
+  }.let { return "{$it}" }
