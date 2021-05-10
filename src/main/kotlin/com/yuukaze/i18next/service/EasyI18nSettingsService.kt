@@ -19,46 +19,46 @@ import com.yuukaze.i18next.model.SettingsState
  */
 @State(name = "EasyI18nSettings")
 class EasyI18nSettingsService(project: Project) :
-  PersistentStateComponent<SettingsState>, Disposable {
+    PersistentStateComponent<SettingsState>, Disposable {
 
-  private var state: SettingsState
-  val dataStore = DataStore(project)
+    private var state: SettingsState
+    val dataStore = DataStore(project)
 
 
-  override fun getState(): SettingsState {
-    return state
-  }
+    override fun getState(): SettingsState {
+        return state
+    }
 
-  override fun loadState(state: SettingsState) {
-    this.state = state
-  }
+    override fun loadState(state: SettingsState) {
+        this.state = state
+    }
 
-  init {
-    state = SettingsState()
-    i18nStore.dispatch(InitProjectAction(project = project))
-  }
+    init {
+        state = SettingsState()
+        i18nStore.dispatch(InitProjectAction(project = project))
+    }
 
-  fun mainFactory(): I18nAppFactory =
-    I18nAppFactory(
-      listOf(
-        listOf(
-          JsxTextFactory(),
-          JsxAttributeWithStringTemplateFactory(),
-          JsxAttributeFactory()
+    fun mainFactory(): I18nAppFactory =
+        I18nAppFactory(
+            listOf(
+                listOf(
+                    JsxTextFactory(),
+                    JsxAttributeWithStringTemplateFactory(),
+                    JsxAttributeFactory()
+                )
+            ).flatten()
         )
-      ).flatten()
-    )
 
-  override fun dispose() {
+    override fun dispose() {
 
-  }
+    }
 }
 
 fun <T : Project?> T.getEasyI18nService(): EasyI18nSettingsService =
-  ServiceManager.getService(this!!, EasyI18nSettingsService::class.java).let {
-    it.initializeComponent()
-    return it
-  }
+    ServiceManager.getService(this!!, EasyI18nSettingsService::class.java).let {
+        it.initializeComponent()
+        return it
+    }
 
 fun <T : Project?> T.getEasyI18nDataStore(): DataStore =
-  this.getEasyI18nService().dataStore
+    this.getEasyI18nService().dataStore

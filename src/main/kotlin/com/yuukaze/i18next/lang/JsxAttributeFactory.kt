@@ -11,29 +11,29 @@ import com.yuukaze.i18next.model.KeyedTranslation
 import com.yuukaze.i18next.utils.toBoolean
 
 class JsxAttributeFactory : LanguageFactory {
-  override fun translationExtractor(): TranslationExtractor =
-    JsxAttributeExtractor()
+    override fun translationExtractor(): TranslationExtractor =
+        JsxAttributeExtractor()
 }
 
 open class JsxAttributeExtractor : JsxTranslationExtractorBase() {
-  override fun canExtract(element: PsiElement): Boolean =
-    super.canExtract(element) && element.getAttribute().toBoolean()
+    override fun canExtract(element: PsiElement): Boolean =
+        super.canExtract(element) && element.getAttribute().toBoolean()
 
-  override fun isExtracted(element: PsiElement): Boolean =
-    element.isJs() && JSPatterns.jsArgument("t", 0).accepts(element.parent)
+    override fun isExtracted(element: PsiElement): Boolean =
+        element.isJs() && JSPatterns.jsArgument("t", 0).accepts(element.parent)
 
-  override fun text(element: PsiElement): String =
-    element.getAttribute()!!
-      .value!!
+    override fun text(element: PsiElement): String =
+        element.getAttribute()!!
+            .value!!
 
-  override fun textRange(element: PsiElement): TextRange =
-    element.getAttribute()!!.valueElement!!.textRange
+    override fun textRange(element: PsiElement): TextRange =
+        element.getAttribute()!!.valueElement!!.textRange
 
-  override fun template(element: PsiElement): (argument: KeyedTranslation) -> String =
-    { "{t($it)}" }
+    override fun template(element: PsiElement): (argument: KeyedTranslation) -> String =
+        { "{t($it)}" }
 
-  fun PsiElement.getAttribute(): XmlAttribute? = PsiTreeUtil.getParentOfType(
-    this,
-    XmlAttribute::class.java
-  )
+    fun PsiElement.getAttribute(): XmlAttribute? = PsiTreeUtil.getParentOfType(
+        this,
+        XmlAttribute::class.java
+    )
 }

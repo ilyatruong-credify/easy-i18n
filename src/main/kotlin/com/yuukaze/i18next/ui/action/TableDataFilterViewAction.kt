@@ -14,34 +14,34 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @ExperimentalCoroutinesApi
 class TableDataFilterViewAction :
-  ActionGroup("Filter", null, AllIcons.General.Filter) {
-  private val currentFilter =
-    i18nStore.createReduxBindData(TableFilterMode.ALL) { it.filter }
-  private val myActions = listOf(
-    FilterToggleAction("Show all", TableFilterMode.ALL),
-    FilterToggleAction("Show missing", TableFilterMode.SHOW_MISSING),
-    FilterToggleAction("Show unused", TableFilterMode.SHOW_UNUSED),
-  )
+    ActionGroup("Filter", null, AllIcons.General.Filter) {
+    private val currentFilter =
+        i18nStore.createReduxBindData(TableFilterMode.ALL) { it.filter }
+    private val myActions = listOf(
+        FilterToggleAction("Show all", TableFilterMode.ALL),
+        FilterToggleAction("Show missing", TableFilterMode.SHOW_MISSING),
+        FilterToggleAction("Show unused", TableFilterMode.SHOW_UNUSED),
+    )
 
-  init {
-    isPopup = true
-  }
-
-  override fun getChildren(e: AnActionEvent?): Array<AnAction> {
-    return myActions.toArray(AnAction.EMPTY_ARRAY)
-  }
-
-  inner class FilterToggleAction(
-    val text: String,
-    private val filterAction: TableFilterMode
-  ) : ToggleAction(text) {
-    override fun isSelected(e: AnActionEvent): Boolean =
-      filterAction == currentFilter.value
-
-    override fun setSelected(e: AnActionEvent, state: Boolean) {
-      if (state)
-        i18nStore.dispatch(TableFilterAction(mode = filterAction))
+    init {
+        isPopup = true
     }
 
-  }
+    override fun getChildren(e: AnActionEvent?): Array<AnAction> {
+        return myActions.toArray(AnAction.EMPTY_ARRAY)
+    }
+
+    inner class FilterToggleAction(
+        val text: String,
+        private val filterAction: TableFilterMode
+    ) : ToggleAction(text) {
+        override fun isSelected(e: AnActionEvent): Boolean =
+            filterAction == currentFilter.value
+
+        override fun setSelected(e: AnActionEvent, state: Boolean) {
+            if (state)
+                i18nStore.dispatch(TableFilterAction(mode = filterAction))
+        }
+
+    }
 }

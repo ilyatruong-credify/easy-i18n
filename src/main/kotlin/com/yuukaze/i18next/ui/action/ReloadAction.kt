@@ -12,11 +12,11 @@ import java.util.*
  * Reload translations action.
  */
 class ReloadAction : AnAction(
-  ResourceBundle.getBundle("messages").getString("action.reload"),
-  null, AllIcons.Actions.Refresh
+    ResourceBundle.getBundle("messages").getString("action.reload"),
+    null, AllIcons.Actions.Refresh
 ) {
-  override fun actionPerformed(e: AnActionEvent) {
-    i18nStore.dispatch(reloadI18nData())
-    Notifier.notifySuccess(e.project, "Reload from disk success")
-  }
+    override fun actionPerformed(e: AnActionEvent) {
+        i18nStore.dispatch(reloadI18nData())
+        Notifier.notifySuccess(e.project, "Reload from disk success")
+    }
 }

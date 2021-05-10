@@ -18,40 +18,40 @@ import javax.swing.event.TreeSelectionListener
 import javax.swing.tree.DefaultMutableTreeNode
 
 class RootKeyTreeView(private val project: Project) :
-  JComponentWrapper<JBScrollPane> {
-  private val tree = Tree().apply {
-    cellRenderer = object : ColoredTreeCellRenderer() {
-      override fun customizeCellRenderer(
-        tree: JTree,
-        value: Any,
-        selected: Boolean,
-        expanded: Boolean,
-        leaf: Boolean,
-        row: Int,
-        hasFocus: Boolean
-      ) {
-        val node = value as DefaultMutableTreeNode
-        var text = ObjectUtils.tryCast(node.userObject, String::class.java)
-        text = StringUtil.notNullize(text, "")
-        this.append(text, SimpleTextAttributes.REGULAR_ATTRIBUTES)
-      }
+    JComponentWrapper<JBScrollPane> {
+    private val tree = Tree().apply {
+        cellRenderer = object : ColoredTreeCellRenderer() {
+            override fun customizeCellRenderer(
+                tree: JTree,
+                value: Any,
+                selected: Boolean,
+                expanded: Boolean,
+                leaf: Boolean,
+                row: Int,
+                hasFocus: Boolean
+            ) {
+                val node = value as DefaultMutableTreeNode
+                var text = ObjectUtils.tryCast(node.userObject, String::class.java)
+                text = StringUtil.notNullize(text, "")
+                this.append(text, SimpleTextAttributes.REGULAR_ATTRIBUTES)
+            }
+        }
+        emptyText.text =
+            ResourceBundle.getBundle("messages").getString("view.empty")
     }
-    emptyText.text =
-      ResourceBundle.getBundle("messages").getString("view.empty")
-  }
 
-  init {
-    I18nReduxSelectors.filteredTranslations {
-      if (it !== null) tree.model = RootKeyTreeModel(project, it)
+    init {
+        I18nReduxSelectors.filteredTranslations {
+            if (it !== null) tree.model = RootKeyTreeModel(project, it)
+        }
     }
-  }
 
-  private class TreeClickListener : TreeSelectionListener {
-    override fun valueChanged(e: TreeSelectionEvent) {}
-  }
-
-  override val component: JBScrollPane
-    get() = JBScrollPane(tree).apply {
-      border = JBUI.Borders.empty(1, 0, 0, 0)
+    private class TreeClickListener : TreeSelectionListener {
+        override fun valueChanged(e: TreeSelectionEvent) {}
     }
+
+    override val component: JBScrollPane
+        get() = JBScrollPane(tree).apply {
+            border = JBUI.Borders.empty(1, 0, 0, 0)
+        }
 }

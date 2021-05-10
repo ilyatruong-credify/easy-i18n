@@ -10,15 +10,15 @@ import com.yuukaze.i18next.factory.TranslationExtractor
 import com.yuukaze.i18next.utils.toBoolean
 
 abstract class JsxTranslationExtractorBase : TranslationExtractor {
-  override fun canExtract(element: PsiElement): Boolean = listOf(
-    JSXHarmonyFileType.INSTANCE,
-    TypeScriptJSXFileType.INSTANCE
-  ).any { it == element.containingFile.fileType } &&
-      element.getParentJsxTag().toBoolean()
+    override fun canExtract(element: PsiElement): Boolean = listOf(
+        JSXHarmonyFileType.INSTANCE,
+        TypeScriptJSXFileType.INSTANCE
+    ).any { it == element.containingFile.fileType } &&
+            element.getParentJsxTag().toBoolean()
 
-  protected fun PsiElement.getParentJsxTag(): XmlTag? =
-    PsiTreeUtil.getParentOfType(this, XmlTag::class.java)
+    protected fun PsiElement.getParentJsxTag(): XmlTag? =
+        PsiTreeUtil.getParentOfType(this, XmlTag::class.java)
 
-  protected fun PsiElement.isJs(): Boolean =
-    this.language == JavascriptLanguage.INSTANCE
+    protected fun PsiElement.isJs(): Boolean =
+        this.language == JavascriptLanguage.INSTANCE
 }

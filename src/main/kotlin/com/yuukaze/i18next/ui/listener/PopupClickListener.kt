@@ -10,20 +10,20 @@ import java.awt.event.MouseListener
  * @author marhali
  */
 class PopupClickListener(private val callback: Consumer<MouseEvent>) :
-  MouseListener {
-  override fun mouseClicked(e: MouseEvent) {}
-  override fun mousePressed(e: MouseEvent) {
-    if (e.isPopupTrigger) {
-      callback.consume(e)
+    MouseListener {
+    override fun mouseClicked(e: MouseEvent) {}
+    override fun mousePressed(e: MouseEvent) {
+        if (e.isPopupTrigger) {
+            callback.consume(e)
+        }
     }
-  }
 
-  override fun mouseReleased(e: MouseEvent) {
-    if (e.isPopupTrigger) {
-      callback.consume(e)
+    override fun mouseReleased(e: MouseEvent) {
+        if (e.isPopupTrigger) {
+            callback.consume(e)
+        }
     }
-  }
 
-  override fun mouseEntered(e: MouseEvent) {}
-  override fun mouseExited(e: MouseEvent) {}
+    override fun mouseEntered(e: MouseEvent) {}
+    override fun mouseExited(e: MouseEvent) {}
 }

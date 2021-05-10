@@ -22,32 +22,32 @@ import javax.swing.Icon
 
 @Suppress("IntentionDescriptionNotFoundInspection")
 class GoToI18nTable : PsiElementBaseIntentionAction(),
-  IntentionAction, Iconable {
+    IntentionAction, Iconable {
 
-  private val getExtractor = { e: PsiElement ->
-    e.project.getEasyI18nService()
-      .mainFactory()
-      .translationExtractors()
-      .filter { it.canExtract(e) }
-      .whenMatches { extractors -> extractors.any { it.isExtracted(e) } }
-      ?.firstOrNull()
-  }.memoize(1024)
+    private val getExtractor = { e: PsiElement ->
+        e.project.getEasyI18nService()
+            .mainFactory()
+            .translationExtractors()
+            .filter { it.canExtract(e) }
+            .whenMatches { extractors -> extractors.any { it.isExtracted(e) } }
+            ?.firstOrNull()
+    }.memoize(1024)
 
-  override fun getFamilyName(): String = "EasyI18n"
-  override fun getText(): String = "Open i18n Table"
+    override fun getFamilyName(): String = "EasyI18n"
+    override fun getText(): String = "Open i18n Table"
 
-  override fun isAvailable(
-    project: Project,
-    editor: Editor,
-    element: PsiElement
-  ): Boolean =
-    !editor.selectionModel.hasSelection() && getExtractor(element) != null
+    override fun isAvailable(
+        project: Project,
+        editor: Editor,
+        element: PsiElement
+    ): Boolean =
+        !editor.selectionModel.hasSelection() && getExtractor(element) != null
 
-  @ExperimentalCoroutinesApi
-  override fun invoke(project: Project, editor: Editor?, element: PsiElement) {
-    project.openToolWindow()
-    selectI18nKey(element.text!!.removeSurrounding("\""))
-  }
+    @ExperimentalCoroutinesApi
+    override fun invoke(project: Project, editor: Editor?, element: PsiElement) {
+        project.openToolWindow()
+        selectI18nKey(element.text!!.removeSurrounding("\""))
+    }
 
-  override fun getIcon(flags: Int): Icon = Icons.ToolWindowIcon
+    override fun getIcon(flags: Int): Icon = Icons.ToolWindowIcon
 }

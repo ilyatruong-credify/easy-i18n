@@ -8,12 +8,12 @@ import org.reduxkotlin.Store
 
 @ExperimentalCoroutinesApi
 fun <State : Any, T> Store<State>.createReduxBindData(
-  default: T,
-  setter: (State) -> T
+    default: T,
+    setter: (State) -> T
 ): StateFlow<T> {
-  val wrapper = MutableStateFlow(default)
-  this.reselect(setter) {
-    wrapper.value = it
-  }
-  return wrapper
+    val wrapper = MutableStateFlow(default)
+    this.reselect(setter) {
+        wrapper.value = it
+    }
+    return wrapper
 }

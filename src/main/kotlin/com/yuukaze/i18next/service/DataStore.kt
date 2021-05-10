@@ -12,54 +12,55 @@ import java.util.function.Consumer
  * Singleton service to manage localized messages.
  */
 class DataStore(private val project: Project) {
-  /**
-   * @return Current translation state
-   */
-  val translations: Translations
-    get() = i18nStore.getState().translations!!
+    /**
+     * @return Current translation state
+     */
+    val translations: Translations
+        get() = i18nStore.getState().translations!!
 
-  /**
-   * Loads all translations from disk and overrides current [.translations] state.
-   */
-  fun reloadFromDisk() {
-    lateinit var translations: Translations
-    val localesPath = project.getService(
-      EasyI18nSettingsService::class.java
-    ).state.localesPath
-    if (localesPath.isEmpty()) {
-      translations = Translations()
-    } else {
-      val io = IOUtil.determineFormat(localesPath)
-      io.read(localesPath) {
-        translations = it ?: Translations()
-      }
-    }
-    i18nStore.dispatch(ReloadTranslations(translations = translations))
-  }
-
-  /**
-   * Saves the current translation state to disk. See [TranslatorIO.save]
-   *
-   * @param callback Complete callback. Indicates if operation was successful(true) or not
-   */
-  private fun saveToDisk(callback: Consumer<Boolean>) {
-    val localesPath = project.getEasyI18nService().state.localesPath
-    // Cannot save without valid path
-    if (localesPath.isEmpty()) {
-      return
-    }
-    val io = IOUtil.determineFormat(localesPath)
-    io.save(translations, localesPath, callback)
-  }
-
-  fun doWriteToDisk(callback:(()->Unit)?) {
-    saveToDisk { success: Boolean ->
-      if (success) {
+    /**
+     * Loads all translations from disk and overrides current [.translations] state.
+     */
+    fun reloadFromDisk() {
+        lateinit var translations: Translations
+        val localesPath = project.getService(
+            EasyI18nSettingsService::class.java
+        ).state.localesPath
+        if (localesPath.isEmpty()) {
+            translations = Translations()
+        } else {
+            val io = IOUtil.determineFormat(localesPath)
+            io.read(localesPath) {
+                translations = it ?: Translations()
+            }
+        }
         i18nStore.dispatch(ReloadTranslations(translations = translations))
-        if(callback!=null)
-          callback()
-      }
     }
-  }
-  fun doWriteToDisk() = doWriteToDisk(null)
+
+    /**
+     * Saves the current translation state to disk. See [TranslatorIO.save]
+     *
+     * @param callback Complete callback. Indicates if operation was successful(true) or not
+     */
+    private fun saveToDisk(callback: Consumer<Boolean>) {
+        val localesPath = project.getEasyI18nService().state.localesPath
+        // Cannot save without valid path
+        if (localesPath.isEmpty()) {
+            return
+        }
+        val io = IOUtil.determineFormat(localesPath)
+        io.save(translations, localesPath, callback)
+    }
+
+    fun doWriteToDisk(callback: (() -> Unit)?) {
+        saveToDisk { success: Boolean ->
+            if (success) {
+                i18nStore.dispatch(ReloadTranslations(translations = translations))
+                if (callback != null)
+                    callback()
+            }
+        }
+    }
+
+    fun doWriteToDisk() = doWriteToDisk(null)
 }

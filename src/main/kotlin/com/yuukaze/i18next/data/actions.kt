@@ -20,84 +20,84 @@ data class SearchAction(val text: String)
 data class ReloadTranslations(val translations: Translations)
 
 open class UpdateTranslation
-  (
-  val origin: KeyedTranslation?,
-  val change: KeyedTranslation?
+    (
+    val origin: KeyedTranslation?,
+    val change: KeyedTranslation?
 ) {
-  val isCreation: Boolean
-    get() = origin == null
-  val isDeletion: Boolean
-    get() = change == null
-  val isKeyChange: Boolean
-    get() = origin != null && change != null && origin.key != change.key
+    val isCreation: Boolean
+        get() = origin == null
+    val isDeletion: Boolean
+        get() = change == null
+    val isKeyChange: Boolean
+        get() = origin != null && change != null && origin.key != change.key
 
-  override fun toString(): String {
-    return "UpdateTranslation{" +
-        "origin=" + origin +
-        ", change=" + change +
-        '}'
-  }
+    override fun toString(): String {
+        return "UpdateTranslation{" +
+                "origin=" + origin +
+                ", change=" + change +
+                '}'
+    }
 }
 
 class CreateTranslation(translation: KeyedTranslation) :
-  UpdateTranslation(null, translation)
+    UpdateTranslation(null, translation)
 
 class DeleteTranslation(translation: KeyedTranslation) :
-  UpdateTranslation(translation, null)
+    UpdateTranslation(translation, null)
 
 enum class TableFilterMode {
-  ALL, SHOW_MISSING, SHOW_UNUSED
+    ALL, SHOW_MISSING, SHOW_UNUSED
 }
 
 data class TableFilterAction(val mode: TableFilterMode)
 
 data class ReloadPsi(val map: Map<String, PsiElementSet>) {
-  override fun toString(): String = "ReloadPsi(map.size=${map.size})"
+    override fun toString(): String = "ReloadPsi(map.size=${map.size})"
 }
 
 data class SelectKeyAction(val key: String)
 
 fun reloadI18nData(): Thunk<AppState> = { dispatch, getState, extraArg ->
-  runBlocking {
-    val project = getState().project!!
-    listOf(async {
-      lateinit var translations: Translations
-      val localesPath = project.getService(
-        EasyI18nSettingsService::class.java
-      ).state.localesPath
-      if (localesPath.isEmpty()) {
-        translations = Translations()
-      } else {
-        val io = IOUtil.determineFormat(localesPath)
-        io.read(localesPath) {
-          translations = it ?: Translations()
-        }
-      }
-      dispatch(ReloadTranslations(translations = translations))
-    }, async {
-      project.getEasyI18nReferenceService().processAll()
-    }).awaitAll()
-  }
+    runBlocking {
+        val project = getState().project!!
+        listOf(async {
+            lateinit var translations: Translations
+            val localesPath = project.getService(
+                EasyI18nSettingsService::class.java
+            ).state.localesPath
+            if (localesPath.isEmpty()) {
+                translations = Translations()
+            } else {
+                val io = IOUtil.determineFormat(localesPath)
+                io.read(localesPath) {
+                    translations = it ?: Translations()
+                }
+            }
+            dispatch(ReloadTranslations(translations = translations))
+        }, async {
+            project.getEasyI18nReferenceService().processAll()
+        }).awaitAll()
+    }
 }
 
 fun selectI18nKey(key: String) {
-  i18nStore.dispatch(SelectKeyAction(key = key))
+    i18nStore.dispatch(SelectKeyAction(key = key))
 }
 
 @Suppress("FunctionName")
 private fun _duplicateI18nKey(key: String, newKey: String): Thunk<AppState> =
-  { dispatch, getState, extraArgs ->
-    val project = getState().project!!
-    val translations = getState().translations!!
-    val keyObj = translations.getNode(key)
-    translations.getOrCreateNode(newKey).apply {
-      value = keyObj!!.value
+    { dispatch, getState, extraArgs ->
+        val project = getState().project!!
+        val translations = getState().translations!!
+        val keyObj = translations.getNode(key)
+        translations.getOrCreateNode(newKey).apply {
+            value = keyObj!!.value
+        }
+        project.getEasyI18nDataStore().doWriteToDisk {
+            dispatch(selectI18nKey(newKey))
+        }
     }
-    project.getEasyI18nDataStore().doWriteToDisk {
-      dispatch(selectI18nKey(newKey))
-    }
-  }
 
 fun duplicateI18nKey(key: String, newKey: String) {
-  i18nStore.dispatch(_duplicateI18nKey(key, newKey))
+    i18nStore.dispatch(_duplicateI18nKey(key, newKey))
 }

@@ -19,41 +19,41 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @ExperimentalCoroutinesApi
 class I18nToolWindow(project: Project, val toolWindow: ToolWindow) {
-  val tableView by lazy { TableView(project) }
-  private val searchKeyView = SearchKeyView()
-  private val rootKeyTreeView by lazy { RootKeyTreeView(project) }
+    val tableView by lazy { TableView(project) }
+    private val searchKeyView = SearchKeyView()
+    private val rootKeyTreeView by lazy { RootKeyTreeView(project) }
 
-  private val toolbar = ActionManager.getInstance()
-    .createActionToolbar(
-      ActionPlaces.UNKNOWN, DefaultActionGroup(
-        ReloadAction(),
-        Separator.getInstance(),
-        TableDataFilterViewAction()
-      ), false
-    )
+    private val toolbar = ActionManager.getInstance()
+        .createActionToolbar(
+            ActionPlaces.UNKNOWN, DefaultActionGroup(
+                ReloadAction(),
+                Separator.getInstance(),
+                TableDataFilterViewAction()
+            ), false
+        )
 
-  val rootPanel by lazy {
-    border {
-      left += border {
-        border = IdeBorderFactory.createBorder(SideBorder.RIGHT)
-        addToCenter(toolbar.component.apply {
-          border = JBUI.Borders.empty(2)
-        })
-      }
-      center += OnePixelSplitter(false, 0.25f).apply {
-        firstComponent = border {
-          border = JBUI.Borders.empty()
-          top += border {
-            border = IdeBorderFactory.createBorder(SideBorder.BOTTOM)
-            addToCenter(NonOpaquePanel(searchKeyView.component))
-          }
-          center += rootKeyTreeView.component
+    val rootPanel by lazy {
+        border {
+            left += border {
+                border = IdeBorderFactory.createBorder(SideBorder.RIGHT)
+                addToCenter(toolbar.component.apply {
+                    border = JBUI.Borders.empty(2)
+                })
+            }
+            center += OnePixelSplitter(false, 0.25f).apply {
+                firstComponent = border {
+                    border = JBUI.Borders.empty()
+                    top += border {
+                        border = IdeBorderFactory.createBorder(SideBorder.BOTTOM)
+                        addToCenter(NonOpaquePanel(searchKeyView.component))
+                    }
+                    center += rootKeyTreeView.component
+                }
+                I18nReduxSelectors.filteredTranslations {
+                    if (it !== null)
+                        secondComponent = tableView.component
+                }
+            }
         }
-        I18nReduxSelectors.filteredTranslations {
-          if (it !== null)
-            secondComponent = tableView.component
-        }
-      }
     }
-  }
 }

@@ -23,204 +23,204 @@ val byRefEqualityCheck: EqualityCheckFn = { a: Any, b: Any -> a === b }
 val byValEqualityCheck: EqualityCheckFn = { a: Any, b: Any -> a == b }
 
 interface Memoizer<T> {
-  fun memoize(state: Any, vararg inputs: SelectorInput<Any, Any>): T
+    fun memoize(state: Any, vararg inputs: SelectorInput<Any, Any>): T
 }
 
 // {a:Any,b:Any -> a===b}
 @Suppress("UNCHECKED_CAST")
 fun <T> computationMemoizer(computeFn: (Array<out Any>) -> T) =
-  object : Memoizer<T> {
-    var lastArgs: Array<out Any>? = null
-    var lastResult: T? = null
-    override fun memoize(
-      state: Any,
-      vararg inputs: SelectorInput<Any, Any>
-    ): T {
-      val nInputs = inputs.size
-      val args = Array<Any>(nInputs) { inputs[it].invoke(state) }
-      if (lastArgs != null && lastArgs!!.size == inputs.size) {
-        var bMatchedArgs = true
-        for (i in 0 until nInputs) {
-          if (!inputs[i].equalityCheck(args[i], lastArgs!![i])) {
-            bMatchedArgs = false
-            break
-          }
+    object : Memoizer<T> {
+        var lastArgs: Array<out Any>? = null
+        var lastResult: T? = null
+        override fun memoize(
+            state: Any,
+            vararg inputs: SelectorInput<Any, Any>
+        ): T {
+            val nInputs = inputs.size
+            val args = Array<Any>(nInputs) { inputs[it].invoke(state) }
+            if (lastArgs != null && lastArgs!!.size == inputs.size) {
+                var bMatchedArgs = true
+                for (i in 0 until nInputs) {
+                    if (!inputs[i].equalityCheck(args[i], lastArgs!![i])) {
+                        bMatchedArgs = false
+                        break
+                    }
+                }
+                if (bMatchedArgs) {
+                    return lastResult as T
+                }
+            }
+            lastArgs = args
+            lastResult = computeFn(args)
+            return lastResult as T
         }
-        if (bMatchedArgs) {
-          return lastResult as T
-        }
-      }
-      lastArgs = args
-      lastResult = computeFn(args)
-      return lastResult as T
     }
-  }
 
 /**
  * specialization for the case of single input (a little bit faster)
  */
 @Suppress("UNCHECKED_CAST")
 fun <T> singleInputMemoizer(func: (Array<out Any>) -> T) =
-  object : Memoizer<T> {
-    var lastArg: Any? = null
-    var lastResult: T? = null
-    override fun memoize(
-      state: Any,
-      vararg inputs: SelectorInput<Any, Any>
-    ): T {
-      val input = inputs[0]
-      val arg = input.invoke(state)
-      if (lastArg != null &&
-        input.equalityCheck(arg, lastArg!!)
-      ) {
-        return lastResult as T
-      }
-      lastArg = arg
-      lastResult = func(arrayOf(arg))
-      return lastResult as T
+    object : Memoizer<T> {
+        var lastArg: Any? = null
+        var lastResult: T? = null
+        override fun memoize(
+            state: Any,
+            vararg inputs: SelectorInput<Any, Any>
+        ): T {
+            val input = inputs[0]
+            val arg = input.invoke(state)
+            if (lastArg != null &&
+                input.equalityCheck(arg, lastArg!!)
+            ) {
+                return lastResult as T
+            }
+            lastArg = arg
+            lastResult = func(arrayOf(arg))
+            return lastResult as T
+        }
     }
-  }
 
 interface SelectorInput<S, I> {
-  operator fun invoke(state: S): I
-  val equalityCheck: EqualityCheckFn
+    operator fun invoke(state: S): I
+    val equalityCheck: EqualityCheckFn
 }
 
 /**
  * a selector function is a function that map a field in state object to the input for the selector compute function
  */
 class InputField<S, I>(
-  val fn: S.() -> I,
-  override val equalityCheck: EqualityCheckFn
+    val fn: S.() -> I,
+    override val equalityCheck: EqualityCheckFn
 ) : SelectorInput<S, I> {
-  override operator fun invoke(state: S): I = state.fn()
+    override operator fun invoke(state: S): I = state.fn()
 }
 
 /**
  * note: [Selector] inherit from [SelectorInput] because of support for composite selectors
  */
 interface Selector<S, O> : SelectorInput<S, O> {
-  val recomputations: Long
-  fun isChanged(): Boolean
+    val recomputations: Long
+    fun isChanged(): Boolean
 
-  /**
-   * by calling this method, you will force the next call to [getIfChangedIn] to succeed,
-   * as if the actual value of the selector was changed, but no actual recomputation is performed
-   */
-  fun signalChanged()
-  fun resetChanged()
-  fun getIfChangedIn(state: S): O? {
-    val res = invoke(state)
-    if (isChanged()) {
-      resetChanged()
-      return res
+    /**
+     * by calling this method, you will force the next call to [getIfChangedIn] to succeed,
+     * as if the actual value of the selector was changed, but no actual recomputation is performed
+     */
+    fun signalChanged()
+    fun resetChanged()
+    fun getIfChangedIn(state: S): O? {
+        val res = invoke(state)
+        if (isChanged()) {
+            resetChanged()
+            return res
+        }
+        return null
     }
-    return null
-  }
 
-  fun onChangeIn(state: S, blockfn: (O) -> Unit) {
-    getIfChangedIn(state)?.let(blockfn)
-  }
+    fun onChangeIn(state: S, blockfn: (O) -> Unit) {
+        getIfChangedIn(state)?.let(blockfn)
+    }
 }
 
 /**
  * abstract base class for all selectors
  */
 abstract class AbstractSelector<S, O> : Selector<S, O> {
-  @JvmField
-  protected var recomputationsLastChanged = 0L
+    @JvmField
+    protected var recomputationsLastChanged = 0L
 
-  @JvmField
-  protected var _recomputations = 0L
-  override val recomputations: Long get() = _recomputations
+    @JvmField
+    protected var _recomputations = 0L
+    override val recomputations: Long get() = _recomputations
 
-  /**
-   * see documentation to [Selector.signalChanged]
-   */
-  override fun signalChanged() {
-    ++_recomputations
-  }
+    /**
+     * see documentation to [Selector.signalChanged]
+     */
+    override fun signalChanged() {
+        ++_recomputations
+    }
 
-  override fun isChanged(): Boolean =
-    _recomputations != recomputationsLastChanged
+    override fun isChanged(): Boolean =
+        _recomputations != recomputationsLastChanged
 
-  override fun resetChanged() {
-    recomputationsLastChanged = _recomputations
-  }
+    override fun resetChanged() {
+        recomputationsLastChanged = _recomputations
+    }
 
-  protected abstract val computeAndCount: (i: Array<out Any>) -> O
+    protected abstract val computeAndCount: (i: Array<out Any>) -> O
 
-  /**
-   * 'lazy' because computeandcount is abstract. Cannot reference to it before it is initialized in concrete selectors
-   * 'open' because we can provide a custom memoizer if needed
-   */
-  open val memoizer by lazy { computationMemoizer(computeAndCount) }
+    /**
+     * 'lazy' because computeandcount is abstract. Cannot reference to it before it is initialized in concrete selectors
+     * 'open' because we can provide a custom memoizer if needed
+     */
+    open val memoizer by lazy { computationMemoizer(computeAndCount) }
 }
 
 class TypedSelectorBuilder<S : Any> {
-  fun <I> withSingleField(fn: S.() -> I) = object : AbstractSelector<S, I>() {
-    @Suppress("UNCHECKED_CAST")
-    private val inputField =
-      InputField(fn, byRefEqualityCheck) as SelectorInput<Any, Any>
-    override val computeAndCount = fun(i: Array<out Any>): I {
-      ++_recomputations
-      @Suppress("UNCHECKED_CAST")
-      return i[0] as I
-    }
-
-    override operator fun invoke(state: S): I {
-      return memoizer.memoize(state, inputField)
-    }
-
-    override val equalityCheck: EqualityCheckFn
-      get() = byRefEqualityCheck
-    override val memoizer: Memoizer<I> by lazy {
-      singleInputMemoizer(computeAndCount)
-    }
-  }
-
-  fun <I> withSingleFieldByValue(fn: S.() -> I) =
-    object : AbstractSelector<S, I>() {
-      @Suppress("UNCHECKED_CAST")
-      private val inputField =
-        InputField(fn, byValEqualityCheck) as SelectorInput<Any, Any>
-      override val computeAndCount = fun(i: Array<out Any>): I {
-        ++_recomputations
+    fun <I> withSingleField(fn: S.() -> I) = object : AbstractSelector<S, I>() {
         @Suppress("UNCHECKED_CAST")
-        return i[0] as I
-      }
+        private val inputField =
+            InputField(fn, byRefEqualityCheck) as SelectorInput<Any, Any>
+        override val computeAndCount = fun(i: Array<out Any>): I {
+            ++_recomputations
+            @Suppress("UNCHECKED_CAST")
+            return i[0] as I
+        }
 
-      override operator fun invoke(state: S): I {
-        return memoizer.memoize(state, inputField)
-      }
+        override operator fun invoke(state: S): I {
+            return memoizer.memoize(state, inputField)
+        }
 
-      override val equalityCheck: EqualityCheckFn
-        get() = byValEqualityCheck
-      override val memoizer: Memoizer<I> by lazy {
-        singleInputMemoizer(computeAndCount)
-      }
-
-      operator fun <I : Any> invoke(fn: S.() -> I): AbstractSelector<S, I> {
-        return withSingleField(fn)
-      }
+        override val equalityCheck: EqualityCheckFn
+            get() = byRefEqualityCheck
+        override val memoizer: Memoizer<I> by lazy {
+            singleInputMemoizer(computeAndCount)
+        }
     }
+
+    fun <I> withSingleFieldByValue(fn: S.() -> I) =
+        object : AbstractSelector<S, I>() {
+            @Suppress("UNCHECKED_CAST")
+            private val inputField =
+                InputField(fn, byValEqualityCheck) as SelectorInput<Any, Any>
+            override val computeAndCount = fun(i: Array<out Any>): I {
+                ++_recomputations
+                @Suppress("UNCHECKED_CAST")
+                return i[0] as I
+            }
+
+            override operator fun invoke(state: S): I {
+                return memoizer.memoize(state, inputField)
+            }
+
+            override val equalityCheck: EqualityCheckFn
+                get() = byValEqualityCheck
+            override val memoizer: Memoizer<I> by lazy {
+                singleInputMemoizer(computeAndCount)
+            }
+
+            operator fun <I : Any> invoke(fn: S.() -> I): AbstractSelector<S, I> {
+                return withSingleField(fn)
+            }
+        }
 }
 
 private fun <State : Any, T> Store<State>._reselectors(
-  init: SelectorSubscriberBuilder<State, T>.() -> Unit
+    init: SelectorSubscriberBuilder<State, T>.() -> Unit
 ): StoreSubscriber {
-  val subscriberBuilder = SelectorSubscriberBuilder<State, T>(this)
-  subscriberBuilder.init()
-  val sub = {
-    subscriberBuilder.selectorList.forEach { entry ->
-      entry.key.onChangeIn(state) { entry.value(it) }
+    val subscriberBuilder = SelectorSubscriberBuilder<State, T>(this)
+    subscriberBuilder.init()
+    val sub = {
+        subscriberBuilder.selectorList.forEach { entry ->
+            entry.key.onChangeIn(state) { entry.value(it) }
+        }
+        subscriberBuilder.withAnyChangeFun?.invoke()
+        Unit
     }
-    subscriberBuilder.withAnyChangeFun?.invoke()
-    Unit
-  }
-  // call subscriber immediately when subscribing
-  sub()
-  return this.subscribe(sub)
+    // call subscriber immediately when subscribing
+    sub()
+    return this.subscribe(sub)
 }
 
 //fun <State : Any, T1, T2, T> Store<State>.reselectors(
@@ -248,16 +248,16 @@ private fun <State : Any, T> Store<State>._reselectors(
 //  TODO()
 
 fun <State : Any, T> Store<State>.reselect(
-  selector: TStateMap<T, State>,
-  action: TAction<T>
+    selector: TStateMap<T, State>,
+    action: TAction<T>
 ): StoreSubscriber {
-  return this._reselectors<State, T> {
-    reselect(selector, action)
-  }
+    return this._reselectors<State, T> {
+        reselect(selector, action)
+    }
 }
 
 fun <State : Any, T> Store<State>.reselect(
-  selector: TStateMap<T, State>
+    selector: TStateMap<T, State>
 ) = fun(action: TAction<T>): StoreSubscriber {
-  return this.reselect(selector, action)
+    return this.reselect(selector, action)
 }

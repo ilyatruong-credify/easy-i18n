@@ -11,41 +11,41 @@ import com.yuukaze.i18next.utils.KeyMatcherBuilder
 
 
 object KeyRequest {
-  fun manipulateTranslationKey(
-    project: Project,
-    text: String,
-    editor: Editor,
-    callback: Consumer<Any>
-  ) {
-    val translations = project.getEasyI18nDataStore().translations
-    val fullKeys = translations.fullKeys.mapNotNull {
-      KeyMatcherBuilder.run(text, it)
-    }
-
-    if (fullKeys.isEmpty()) {
-      val add = AddDialog(project, null)
-      add.extractedText = text
-      add.callback = {
-        run {
-          callback.consume(it)
+    fun manipulateTranslationKey(
+        project: Project,
+        text: String,
+        editor: Editor,
+        callback: Consumer<Any>
+    ) {
+        val translations = project.getEasyI18nDataStore().translations
+        val fullKeys = translations.fullKeys.mapNotNull {
+            KeyMatcherBuilder.run(text, it)
         }
-      }
-      add.showAndHandle()
-    } else {
-      val popup =
-        JBPopupFactory.getInstance().createPopupChooserBuilder(fullKeys)
-          .setTitle("Choose existing translation(s) below")
-          .setMovable(false)
-          .setResizable(false)
-          .setRequestFocus(true)
-          .setCancelOnWindowDeactivation(false)
-          .setItemChosenCallback {
-            run {
-              callback.consume(it)
+
+        if (fullKeys.isEmpty()) {
+            val add = AddDialog(project, null)
+            add.extractedText = text
+            add.callback = {
+                run {
+                    callback.consume(it)
+                }
             }
-          }
-          .createPopup()
-      popup.showInBestPositionFor(editor)
+            add.showAndHandle()
+        } else {
+            val popup =
+                JBPopupFactory.getInstance().createPopupChooserBuilder(fullKeys)
+                    .setTitle("Choose existing translation(s) below")
+                    .setMovable(false)
+                    .setResizable(false)
+                    .setRequestFocus(true)
+                    .setCancelOnWindowDeactivation(false)
+                    .setItemChosenCallback {
+                        run {
+                            callback.consume(it)
+                        }
+                    }
+                    .createPopup()
+            popup.showInBestPositionFor(editor)
+        }
     }
-  }
 }

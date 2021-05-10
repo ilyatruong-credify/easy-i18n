@@ -15,153 +15,153 @@ import javax.swing.JPanel
 val factory = DefaultJComponentFactory()
 
 inline fun dsl(init: JPanel.() -> Unit) = JPanel().apply {
-  init()
+    init()
 }
 
 inline fun grid(
-  rows: Int,
-  cols: Int,
-  build: GridBuilder.() -> Unit
+    rows: Int,
+    cols: Int,
+    build: GridBuilder.() -> Unit
 ): JPanel {
-  val panel = JPanel(GridLayoutManager(rows, cols))
-  build(GridBuilder(panel))
-  return panel
+    val panel = JPanel(GridLayoutManager(rows, cols))
+    build(GridBuilder(panel))
+    return panel
 }
 
 inline fun grid(
-  columnsTemplate: List<String>,
-  build: GridBuilder.() -> Unit
+    columnsTemplate: List<String>,
+    build: GridBuilder.() -> Unit
 ): JPanel {
-  val panel = JPanel(GridLayoutManager(1, 1))
-  build(GridBuilder(panel).let {
-    it.columnsTemplate = columnsTemplate
-    it
-  })
-  return panel
+    val panel = JPanel(GridLayoutManager(1, 1))
+    build(GridBuilder(panel).let {
+        it.columnsTemplate = columnsTemplate
+        it
+    })
+    return panel
 }
 
 inline fun grid(build: GridBuilder.() -> Unit): JPanel = grid(1, 1, build)
 
 inline fun border(build: BorderLayoutPanelBuilder.() -> Unit): BorderLayoutPanelBuilder =
-  BorderLayoutPanelBuilder().apply(build)
+    BorderLayoutPanelBuilder().apply(build)
 
 class BorderLayoutPanelBuilder : BorderLayoutPanel() {
-  val left = ChildBuilder { addToLeft(it) }
-  val center = ChildBuilder { addToCenter(it) }
-  val top = ChildBuilder { addToCenter(it) }
+    val left = ChildBuilder { addToLeft(it) }
+    val center = ChildBuilder { addToCenter(it) }
+    val top = ChildBuilder { addToTop(it) }
 
-  inner class ChildBuilder(val callback: (Component) -> Unit) {
-    operator fun plusAssign(comp: Component) = callback(comp)
-  }
+    inner class ChildBuilder(val callback: (Component) -> Unit) {
+        operator fun plusAssign(comp: Component) = callback(comp)
+    }
 }
 
 interface JComponentFactory {
-  fun grid(
-    rows: Int,
-    cols: Int,
-    build: GridBuilder.() -> Unit
-  ): JPanel
+    fun grid(
+        rows: Int,
+        cols: Int,
+        build: GridBuilder.() -> Unit
+    ): JPanel
 }
 
 open class DefaultPanelBuilder<L : LayoutManager>(private val panel: JPanel) :
-  PanelBuilder, JComponentFactory {
-  override fun createPanel() = panel
+    PanelBuilder, JComponentFactory {
+    override fun createPanel() = panel
 
-  override fun constrainsValid(): Boolean = true
+    override fun constrainsValid(): Boolean = true
 
-  override fun grid(
-    rows: Int,
-    cols: Int,
-    build: GridBuilder.() -> Unit
-  ): JPanel = add(factory.grid(rows, cols, build))
+    override fun grid(
+        rows: Int,
+        cols: Int,
+        build: GridBuilder.() -> Unit
+    ): JPanel = add(factory.grid(rows, cols, build))
 
-  open fun <T : JComponent> add(component: T): T {
-    panel.add(component)
-    return component
-  }
+    open fun <T : JComponent> add(component: T): T {
+        panel.add(component)
+        return component
+    }
 
-  @Suppress("UNCHECKED_CAST")
-  val layout:L
-    get() = panel.layout as L
+    @Suppress("UNCHECKED_CAST")
+    val layout: L
+        get() = panel.layout as L
 }
 
 class GridBuilder(private val panel: JPanel) :
-  DefaultPanelBuilder<GridLayoutManager>(panel) {
-  private var addIndex = -1
-  private val currentCol: Int
-    get() = addIndex % layout.columnCount
-  private val currentRow: Int
-    get() = addIndex / layout.columnCount
+    DefaultPanelBuilder<GridLayoutManager>(panel) {
+    private var addIndex = -1
+    private val currentCol: Int
+        get() = addIndex % layout.columnCount
+    private val currentRow: Int
+        get() = addIndex / layout.columnCount
 
-  private fun increaseConstraint() {
-    addIndex++
-    if (addIndex >= layout.columnCount * layout.rowCount) {
-      //increase row
-      panel.layout = GridLayoutManager(layout.rowCount + 1, layout.columnCount)
-    }
-  }
-
-  private fun nextConstraint() = nextConstraint(null)
-  private fun nextConstraint(constraint: GridConstraints?): GridConstraints {
-    increaseConstraint()
-    return ((constraint
-      ?: GridConstraints()).clone() as GridConstraints).apply {
-      row = currentRow
-      column = currentCol
-      if (columnsTemplate[currentCol] == "1fr") {
-        hSizePolicy = hSizePolicy or SIZEPOLICY_WANT_GROW
-        fill = FILL_BOTH
-      }
-    }
-  }
-
-  var columnsTemplate: List<String> = listOf()
-    set(value) {
-      field = value
-      if (value.size != layout.columnCount) {
-        val oldLayout = layout
-        panel.layout = GridLayoutManager(oldLayout.rowCount, value.size)
-      }
+    private fun increaseConstraint() {
+        addIndex++
+        if (addIndex >= layout.columnCount * layout.rowCount) {
+            //increase row
+            panel.layout = GridLayoutManager(layout.rowCount + 1, layout.columnCount)
+        }
     }
 
-  override fun <T : JComponent> add(component: T): T {
-    return add(component, nextConstraint())
-  }
+    private fun nextConstraint() = nextConstraint(null)
+    private fun nextConstraint(constraint: GridConstraints?): GridConstraints {
+        increaseConstraint()
+        return ((constraint
+            ?: GridConstraints()).clone() as GridConstraints).apply {
+            row = currentRow
+            column = currentCol
+            if (columnsTemplate[currentCol] == "1fr") {
+                hSizePolicy = hSizePolicy or SIZEPOLICY_WANT_GROW
+                fill = FILL_BOTH
+            }
+        }
+    }
 
-  fun <T : JComponent> add(component: T, constraint: GridConstraints): T {
-    panel.add(component, constraint)
-    return component
-  }
+    var columnsTemplate: List<String> = listOf()
+        set(value) {
+            field = value
+            if (value.size != layout.columnCount) {
+                val oldLayout = layout
+                panel.layout = GridLayoutManager(oldLayout.rowCount, value.size)
+            }
+        }
 
-  operator fun <T : JComponent> T.invoke(): T = this.invoke(null)
-  operator fun <T : JComponent> T.invoke(constraint: GridConstraints?): T {
-    panel.add(this, nextConstraint(constraint))
-    return this
-  }
+    override fun <T : JComponent> add(component: T): T {
+        return add(component, nextConstraint())
+    }
 
-  operator fun <T2 : JComponent, T : JComponentWrapper<T2>> T.invoke(constraint: GridConstraints): T2 {
-    return this.component(constraint)
-  }
+    fun <T : JComponent> add(component: T, constraint: GridConstraints): T {
+        panel.add(component, constraint)
+        return component
+    }
+
+    operator fun <T : JComponent> T.invoke(): T = this.invoke(null)
+    operator fun <T : JComponent> T.invoke(constraint: GridConstraints?): T {
+        panel.add(this, nextConstraint(constraint))
+        return this
+    }
+
+    operator fun <T2 : JComponent, T : JComponentWrapper<T2>> T.invoke(constraint: GridConstraints): T2 {
+        return this.component(constraint)
+    }
 }
 
 class DefaultJComponentFactory : JComponentFactory {
-  override fun grid(
-    rows: Int,
-    cols: Int,
-    build: GridBuilder.() -> Unit
-  ): JPanel {
-    val panel = JPanel(GridLayoutManager(rows, cols))
-    build(GridBuilder(panel))
-    return panel
-  }
+    override fun grid(
+        rows: Int,
+        cols: Int,
+        build: GridBuilder.() -> Unit
+    ): JPanel {
+        val panel = JPanel(GridLayoutManager(rows, cols))
+        build(GridBuilder(panel))
+        return panel
+    }
 }
 
 interface JComponentWrapper<T : JComponent> {
-  val component: T
+    val component: T
 }
 
 fun DefaultPanelBuilder<*>.label(text: String): JBLabel {
-  val label = JBLabel(text)
-  add(label)
-  return label
+    val label = JBLabel(text)
+    add(label)
+    return label
 }

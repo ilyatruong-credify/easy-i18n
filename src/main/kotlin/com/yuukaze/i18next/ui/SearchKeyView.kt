@@ -12,31 +12,31 @@ import javax.swing.JComponent
 
 
 class SearchKeyView :
-  JComponentWrapper<JComponent> {
-  private val textField = SearchTextField(false)
+    JComponentWrapper<JComponent> {
+    private val textField = SearchTextField(false)
 
-  init {
-    textField.isOpaque = false
-    textField.textEditor!!.apply {
-      border = JBUI.Borders.empty(3, 5)
-      setUI(DarculaTextFieldUI())
-    }
-    i18nStore.reselect({ it.searchText }) {
+    init {
+        textField.isOpaque = false
+        textField.textEditor!!.apply {
+            border = JBUI.Borders.empty(3, 5)
+            setUI(DarculaTextFieldUI())
+        }
+        i18nStore.reselect({ it.searchText }) {
 //      if (!textField.textEditor.isFocusOwner) textField.text = it
-      println(textField.textEditor.isFocusOwner)
+            println(textField.textEditor.isFocusOwner)
+        }
+        textField.addDebouncedDocumentListener {
+            i18nStore.dispatch(
+                SearchAction(
+                    text = document.getText(
+                        0,
+                        document.length
+                    )
+                )
+            )
+        }
     }
-    textField.addDebouncedDocumentListener {
-      i18nStore.dispatch(
-        SearchAction(
-          text = document.getText(
-            0,
-            document.length
-          )
-        )
-      )
-    }
-  }
 
-  override val component: JComponent
-    get() = textField
+    override val component: JComponent
+        get() = textField
 }
