@@ -5,6 +5,7 @@ import com.yuukaze.i18next.model.KeyedTranslation
 import com.yuukaze.i18next.model.Translations
 import com.yuukaze.i18next.service.EasyI18nSettingsService
 import com.yuukaze.i18next.service.PsiElementSet
+import com.yuukaze.i18next.service.getEasyI18nDataStore
 import com.yuukaze.i18next.service.getEasyI18nReferenceService
 import com.yuukaze.i18next.util.IOUtil
 import com.yuukaze.reduxkotlin.thunk.Thunk
@@ -54,7 +55,7 @@ data class ReloadPsi(val map: Map<String, PsiElementSet>) {
   override fun toString(): String = "ReloadPsi(map.size=${map.size})"
 }
 
-data class SelectKeyAction(val key:String)
+data class SelectKeyAction(val key: String)
 
 fun reloadI18nData(): Thunk<AppState> = { dispatch, getState, extraArg ->
   runBlocking {
@@ -79,6 +80,24 @@ fun reloadI18nData(): Thunk<AppState> = { dispatch, getState, extraArg ->
   }
 }
 
-fun selectI18nKey(key:String){
+fun selectI18nKey(key: String) {
   i18nStore.dispatch(SelectKeyAction(key = key))
+}
+
+@Suppress("FunctionName")
+private fun _duplicateI18nKey(key: String, newKey: String): Thunk<AppState> =
+  { dispatch, getState, extraArgs ->
+    val project = getState().project!!
+    val translations = getState().translations!!
+    val keyObj = translations.getNode(key)
+    translations.getOrCreateNode(newKey).apply {
+      value = keyObj!!.value
+    }
+    project.getEasyI18nDataStore().doWriteToDisk {
+      dispatch(selectI18nKey(newKey))
+    }
+  }
+
+fun duplicateI18nKey(key: String, newKey: String) {
+  i18nStore.dispatch(_duplicateI18nKey(key, newKey))
 }

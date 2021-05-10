@@ -8,7 +8,7 @@ plugins {
   // Java support
   id("java")
   // Kotlin support
-  id("org.jetbrains.kotlin.jvm") version "1.4.32"
+  id("org.jetbrains.kotlin.jvm") version "1.5.0"
   // gradle-intellij-plugin - read more: https://github.com/JetBrains/gradle-intellij-plugin
   id("org.jetbrains.intellij") version "0.7.2"
   // gradle-changelog-plugin - read more: https://github.com/JetBrains/gradle-changelog-plugin
@@ -29,6 +29,7 @@ repositories {
 }
 dependencies {
   testImplementation("org.junit.jupiter:junit-jupiter:5.7.0")
+  testImplementation(kotlin("test"))
   detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.15.0")
   implementation("com.google.api-client:google-api-client:1.31.3")
   implementation("com.google.apis:google-api-services-sheets:v4-rev581-1.25.0")
@@ -37,8 +38,7 @@ dependencies {
   implementation("org.reduxkotlin:redux-kotlin-threadsafe:0.5.5")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.3")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-swing:1.4.3")
-  implementation("org.jetbrains.kotlin:kotlin-reflect:1.4.32")
-  testImplementation(kotlin("test"))
+  implementation("org.jetbrains.kotlin:kotlin-reflect:1.5.0")
 }
 
 // Configure gradle-intellij-plugin plugin.

@@ -33,6 +33,10 @@ class VariableKeyMatcher private constructor(
       rawKey: Pair<String, String?>
     ): VariableKeyMatcher? {
       val compareText = rawKey.second ?: return null
+
+      // must return null if keyText not formed variable-translation
+      if (!regex.containsMatchIn(text)) return null
+
       //transform search text into regex
       val regexFromText = Regex(text.replace(regex, "\\\\{\\\\{([^}]+)}}"))
       val match = regexFromText.matchEntire(compareText)
@@ -65,3 +69,9 @@ fun Map<String, String>.toI18nParamsObject(): String =
   this.map { "${it.key}:${it.value}" }.reduce { acc, v ->
     "$acc,$v"
   }.let { return "{$it}" }
+
+fun main(){
+  val searchText = "Hello, Phong"
+  val key = Pair("key.name", "Hello, Phong")
+  KeyMatcherBuilder.run(searchText, key)
+}

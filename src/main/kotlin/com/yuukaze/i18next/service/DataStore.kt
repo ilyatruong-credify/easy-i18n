@@ -52,11 +52,14 @@ class DataStore(private val project: Project) {
     io.save(translations, localesPath, callback)
   }
 
-  fun doWriteToDisk() {
+  fun doWriteToDisk(callback:(()->Unit)?) {
     saveToDisk { success: Boolean ->
       if (success) {
         i18nStore.dispatch(ReloadTranslations(translations = translations))
+        if(callback!=null)
+          callback()
       }
     }
   }
+  fun doWriteToDisk() = doWriteToDisk(null)
 }

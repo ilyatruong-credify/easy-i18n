@@ -2,6 +2,7 @@ package com.yuukaze.i18next.ui.action
 
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.ui.layout.panel
+import com.yuukaze.i18next.data.duplicateI18nKey
 import java.awt.Point
 import java.awt.event.ActionEvent
 import javax.swing.AbstractAction
@@ -27,13 +28,20 @@ class DuplicateAction(val table: JTable) : AbstractAction("Duplicate key") {
   override fun actionPerformed(e: ActionEvent?) {
     val dialog = DuplicateActionDialog()
     if (dialog.showAndGet()) {
-      println(dialog.newKey)
+      duplicateI18nKey(key, dialog.newKey)
     }
   }
 
   inner class DuplicateActionDialog : DialogWrapper(true) {
     var newKey = "$key."
-    var duplicateType = DuplicateKeyType.DEFAULT
+    private var duplicateType = DuplicateKeyType.DEFAULT
+      set(value) {
+        field = value
+        newKey = when (field) {
+          DuplicateKeyType.DEFAULT -> "$key."
+          DuplicateKeyType.PLURAL -> "${key}_plural"
+        }
+      }
 
     init {
       init()
@@ -43,7 +51,9 @@ class DuplicateAction(val table: JTable) : AbstractAction("Duplicate key") {
     override fun createCenterPanel() = panel {
       row("I18n Key") {
         textField(::newKey).focused()
-        row {
+      }
+      row("") {
+        cell {
           buttonGroup {
             radioButton("Default",
               { duplicateType == DuplicateKeyType.DEFAULT },
