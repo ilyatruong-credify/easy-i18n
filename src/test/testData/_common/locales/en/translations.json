@@ -2,5 +2,6 @@
   "foo.key1": "Foo Key1",
   "foo.key2": "Foo Key2",
   "bar.key1": "Bar Key1",
-  "bar.key2": "Bar Key2"
+  "bar.key2": "Bar Key2",
+  "foo.keyNamed1": "Foo {{name}}"
 }
