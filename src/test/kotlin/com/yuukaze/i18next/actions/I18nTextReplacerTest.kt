@@ -1,21 +1,37 @@
 package com.yuukaze.i18next.actions
 
+import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
-import com.intellij.testFramework.fixtures.LightCodeInsightFixtureTestCase
-import com.intellij.testFramework.fixtures.LightJavaCodeInsightFixtureTestCase
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
+import com.yuukaze.i18next.data.InitProjectAction
+import com.yuukaze.i18next.data.i18nStore
+import com.yuukaze.i18next.data.reloadI18nData
+import com.yuukaze.i18next.service.getEasyI18nService
+import com.yuukaze.i18next.utils.IOUtil
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.ObsoleteCoroutinesApi
+import org.junit.Test
 
-import org.junit.jupiter.api.Assertions.*
+@ExperimentalCoroutinesApi
+@ObsoleteCoroutinesApi
+internal class I18nTextReplacerTest : BasePlatformTestCase() {
+    private val hint = "I18n-ize..."
 
-internal class I18nTextReplacerTest: BasePlatformTestCase() {
-    @BeforeEach
-    override fun setUp() {
-        super.setUp()
+    @Test
+    fun testReplaceSimpleXmlText() {
+        myFixture.configureByFile("simple.tsx")
+        initProject()
+        val action: IntentionAction = myFixture.findSingleIntention(hint)
+        assertNotNull(action)
+        myFixture.launchAction(action)
     }
 
-    @AfterEach
-    override fun tearDown() {
-        super.tearDown()
+    override fun getTestDataPath(): String = "src/test/testData/textReplacer"
+
+    private fun initProject() {
+        IOUtil.getFile = myFixture.tempDirFixture::getFile
+        i18nStore.dispatch(InitProjectAction(project = myFixture.project))
+        myFixture.copyDirectoryToProject("../_common/locales", "locales")
+        project.getEasyI18nService().state.localesPath = "locales"
+        i18nStore.dispatch(reloadI18nData())
     }
 }

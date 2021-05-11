@@ -1,6 +1,7 @@
 package com.yuukaze.i18next.utils
 
 import com.intellij.openapi.util.Pair
+import com.yuukaze.i18next.model.I18nKeyed
 
 object KeyMatcherBuilder : KeyMatcherRunner<Any> {
     private val runners = listOf<(String, Pair<String, String?>) -> Any?>(
@@ -22,9 +23,9 @@ interface KeyMatcherRunner<M> {
 }
 
 class VariableKeyMatcher private constructor(
-    val key: String,
+    key: String,
     val params: Map<String, String>
-) {
+) : I18nKeyed(key) {
     companion object : KeyMatcherRunner<VariableKeyMatcher> {
         private val regex = Regex("\\{\\{([^}]+)}}")
 
@@ -51,11 +52,9 @@ class VariableKeyMatcher private constructor(
             return null;
         }
     }
-
-    override fun toString(): String = key
 }
 
-class SingleKeyMatcher private constructor(val key: String) {
+class SingleKeyMatcher private constructor(key: String) : I18nKeyed(key) {
     companion object : KeyMatcherRunner<SingleKeyMatcher> {
         override fun run(
             text: String,

@@ -5,7 +5,7 @@ import com.yuukaze.i18next.data.ReloadTranslations
 import com.yuukaze.i18next.data.i18nStore
 import com.yuukaze.i18next.io.TranslatorIO
 import com.yuukaze.i18next.model.Translations
-import com.yuukaze.i18next.util.IOUtil
+import com.yuukaze.i18next.utils.IOUtil
 import java.util.function.Consumer
 
 /**

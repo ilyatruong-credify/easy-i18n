@@ -9,9 +9,9 @@ import com.yuukaze.i18next.ui.renderer.I18nDetectRegexes
  * Translated messages for a dedicated key.
  */
 class KeyedTranslation(
-    var key: String,
+    key: String,
     var translations: Map<String, String>?
-) {
+) : I18nKeyed(key) {
     override fun toString(): String {
         return "\"$key\""
     }

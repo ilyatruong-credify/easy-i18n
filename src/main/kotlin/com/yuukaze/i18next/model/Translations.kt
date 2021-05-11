@@ -11,6 +11,8 @@ class Translations(val locales: List<String>, val nodes: LocalizedNode) {
         LocalizedNode(LocalizedNode.ROOT_KEY, ArrayList())
     )
 
+    override fun toString(): String ="Translations(size=${nodes.children.size})"
+
     fun clone(children: List<LocalizedNode?>): Translations =
         Translations(locales, LocalizedNode(LocalizedNode.ROOT_KEY, children))
 

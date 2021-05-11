@@ -30,6 +30,7 @@ repositories {
 dependencies {
   testImplementation("org.junit.jupiter:junit-jupiter:5.7.0")
   testImplementation(kotlin("test"))
+  testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.4.3")
   detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.15.0")
   implementation("com.google.api-client:google-api-client:1.31.3")
   implementation("com.google.apis:google-api-services-sheets:v4-rev581-1.25.0")

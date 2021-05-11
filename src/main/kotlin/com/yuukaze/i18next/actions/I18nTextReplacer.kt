@@ -77,6 +77,7 @@ class I18nTextReplacer : PsiElementBaseIntentionAction(), IntentionAction, Icona
         val clipboard = Toolkit.getDefaultToolkit().systemClipboard
         val selection = StringSelection(
             when (s) {
+                is KeyedTranslation -> "t(\"${s.key}\")"
                 is SingleKeyMatcher -> "t(\"${s.key}\")"
                 is VariableKeyMatcher -> "t(\"${s.key}\", ${
                     s.params.toI18nParamsObject()

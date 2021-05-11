@@ -30,8 +30,6 @@ class I18nKeyReferenceManager(private val project: Project) {
             listOf(TypeScriptFileType.INSTANCE, TypeScriptJSXFileType.INSTANCE)
     }
 
-    val map = mutableMapOf<String, PsiElementSet>()
-
     private val searchScope = GlobalSearchScope.projectScope(project)
 
     private val virtualJsFiles: Collection<VirtualFile>
@@ -42,17 +40,11 @@ class I18nKeyReferenceManager(private val project: Project) {
             )
         }.flatten()
 
-    private fun addElementToMap(key: String, element: PsiElement) {
-        val unquotedKey = key.removeSurrounding("\"")
-        if (map[unquotedKey] == null)
-            map[unquotedKey] = mutableSetOf()
-        map[unquotedKey]!!.add(element)
-    }
-
     private fun <T : PsiFile> T.getI18nEntryElement(callback: (String, PsiElement) -> Unit) =
         PsiTreeUtil.processElements(this, I18nEntryProcessor(callback))
 
     fun processAll(callback: (Map<String, PsiElementSet>) -> Unit) {
+        val map = mutableMapOf<String, PsiElementSet>()
         runBackgroundableTask("Scanning i18n entries...", project, false) {
             it.isIndeterminate = false
             ReadAction
@@ -62,7 +54,12 @@ class I18nKeyReferenceManager(private val project: Project) {
                     for (f in virtualJsFiles) {
                         it.fraction = (++i).toDouble() / length
                         PsiManager.getInstance(project).findFile(f)
-                            ?.getI18nEntryElement(this::addElementToMap)
+                            ?.getI18nEntryElement { key, element ->
+                                val unquotedKey = key.removeSurrounding("\"")
+                                if (map[unquotedKey] == null)
+                                    map[unquotedKey] = mutableSetOf()
+                                map[unquotedKey]!!.add(element)
+                            }
                     }
                     callback(map)
                 }.inSmartMode(project)

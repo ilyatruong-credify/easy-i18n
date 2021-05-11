@@ -10,6 +10,7 @@ import com.intellij.util.ui.JBUI
 import com.yuukaze.i18next.data.I18nReduxSelectors
 import com.yuukaze.i18next.model.TableModelTranslator
 import com.yuukaze.i18next.service.getEasyI18nDataStore
+import com.yuukaze.i18next.ui.action.ChangeKeyAction
 import com.yuukaze.i18next.ui.action.DuplicateAction
 import com.yuukaze.i18next.ui.dialog.MigrateDialog
 import com.yuukaze.i18next.ui.listener.DoubleClickListener
@@ -46,6 +47,7 @@ class TableView(private val project: Project?) :
         val duplicate = DuplicateAction(table)
         JBPopupMenu().let {
             it.add(JBMenuItem(TableViewAction("Edit...", this::handleEdit)))
+            it.add(JBMenuItem(ChangeKeyAction(table)))
             it.add(JBMenuItem(duplicate))
             it.add(JBMenuItem(TableViewAction("Migrate...", this::handleMigrate)))
             it.add(JBMenuItem(actionDelete))

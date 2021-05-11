@@ -1,17 +1,22 @@
 package com.yuukaze.i18next.data
 
+import com.intellij.lang.javascript.psi.JSLiteralExpression
+import com.intellij.lang.javascript.psi.impl.JSPsiElementFactory
+import com.intellij.openapi.application.runUndoTransparentWriteAction
 import com.intellij.openapi.project.Project
+import com.intellij.psi.PsiElement
 import com.yuukaze.i18next.model.KeyedTranslation
 import com.yuukaze.i18next.model.Translations
 import com.yuukaze.i18next.service.EasyI18nSettingsService
 import com.yuukaze.i18next.service.PsiElementSet
 import com.yuukaze.i18next.service.getEasyI18nDataStore
 import com.yuukaze.i18next.service.getEasyI18nReferenceService
-import com.yuukaze.i18next.util.IOUtil
+import com.yuukaze.i18next.utils.IOUtil
 import com.yuukaze.reduxkotlin.thunk.Thunk
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.joinAll
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlin.streams.toList
 
 data class InitProjectAction(val project: Project)
 
@@ -57,10 +62,10 @@ data class ReloadPsi(val map: Map<String, PsiElementSet>) {
 
 data class SelectKeyAction(val key: String)
 
-fun reloadI18nData(): Thunk<AppState> = { dispatch, getState, extraArg ->
+fun reloadI18nData(): Thunk<AppState> = { dispatch, getState, _ ->
     runBlocking {
         val project = getState().project!!
-        listOf(async {
+        listOf(launch {
             lateinit var translations: Translations
             val localesPath = project.getService(
                 EasyI18nSettingsService::class.java
@@ -74,9 +79,11 @@ fun reloadI18nData(): Thunk<AppState> = { dispatch, getState, extraArg ->
                 }
             }
             dispatch(ReloadTranslations(translations = translations))
-        }, async {
-            project.getEasyI18nReferenceService().processAll()
-        }).awaitAll()
+        }, launch {
+            project.getEasyI18nReferenceService().processAll {
+                dispatch(ReloadPsi(map = it))
+            }
+        }).joinAll()
     }
 }
 
@@ -86,7 +93,7 @@ fun selectI18nKey(key: String) {
 
 @Suppress("FunctionName")
 private fun _duplicateI18nKey(key: String, newKey: String): Thunk<AppState> =
-    { dispatch, getState, extraArgs ->
+    { dispatch, getState, _ ->
         val project = getState().project!!
         val translations = getState().translations!!
         val keyObj = translations.getNode(key)
@@ -100,4 +107,31 @@ private fun _duplicateI18nKey(key: String, newKey: String): Thunk<AppState> =
 
 fun duplicateI18nKey(key: String, newKey: String) {
     i18nStore.dispatch(_duplicateI18nKey(key, newKey))
+}
+
+@Suppress("FunctionName")
+private fun _changeI18nKey(key: String, newKey: String): Thunk<AppState> =
+    { dispatch, getState, _ ->
+        runBlocking {
+            val state = getState()
+            val project = state.project!!
+            val psiList: List<PsiElement> = (state.psiMap!!.get(key)!!).stream().toList()
+            runUndoTransparentWriteAction {
+                psiList.onEach {
+                    if (it is JSLiteralExpression) {
+                        it.replace(
+                            JSPsiElementFactory.createJSExpression(
+                                "\"$newKey\"",
+                                it
+                            )
+                        )
+                    }
+                }
+                commitPsiElementChanges(project, psiList)
+            }
+        }
+    }
+
+fun changeI18nKey(key: String, newKey: String) {
+    i18nStore.dispatch(_changeI18nKey(key, newKey))
 }
