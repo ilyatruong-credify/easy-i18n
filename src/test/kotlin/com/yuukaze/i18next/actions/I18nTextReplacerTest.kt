@@ -8,12 +8,10 @@ import com.yuukaze.i18next.data.reloadI18nData
 import com.yuukaze.i18next.model.I18nKeyed
 import com.yuukaze.i18next.service.getEasyI18nService
 import com.yuukaze.i18next.utils.IOUtil
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.ObsoleteCoroutinesApi
 import org.junit.Test
+import org.junit.jupiter.api.TestInstance
 
-@ExperimentalCoroutinesApi
-@ObsoleteCoroutinesApi
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 internal class I18nTextReplacerTest : BasePlatformTestCase() {
     private val hint = "I18n-ize..."
 
@@ -65,10 +63,12 @@ internal class I18nTextReplacerTest : BasePlatformTestCase() {
     override fun getTestDataPath(): String = "src/test/testData/textReplacer"
 
     private fun initProject() {
-        IOUtil.getFile = myFixture.tempDirFixture::getFile
-        i18nStore.dispatch(InitProjectAction(project = myFixture.project))
-        myFixture.copyDirectoryToProject("../_common/locales", "locales")
-        project.getEasyI18nService().state.localesPath = "locales"
-        i18nStore.dispatch(reloadI18nData())
+        myFixture.project.apply {
+            IOUtil.getFile = myFixture.tempDirFixture::getFile
+            i18nStore.dispatch(InitProjectAction(project = this))
+            myFixture.copyDirectoryToProject("../_common/locales", "locales")
+            getEasyI18nService().state.localesPath = "locales"
+            i18nStore.dispatch(reloadI18nData())
+        }
     }
 }

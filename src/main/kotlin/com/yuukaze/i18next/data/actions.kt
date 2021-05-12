@@ -135,3 +135,14 @@ private fun _changeI18nKey(key: String, newKey: String): Thunk<AppState> =
 fun changeI18nKey(key: String, newKey: String) {
     i18nStore.dispatch(_changeI18nKey(key, newKey))
 }
+
+fun updateI18nTranslation(key: String, newKey: String, messages: MutableMap<String, String>): Thunk<AppState> =
+    { dispatch, getState, _ ->
+        dispatch(
+            UpdateTranslation(
+                KeyedTranslation(key, messages),
+                KeyedTranslation(newKey, messages)
+            )
+        )
+        getState().project!!.getEasyI18nDataStore().doWriteToDisk()
+    }

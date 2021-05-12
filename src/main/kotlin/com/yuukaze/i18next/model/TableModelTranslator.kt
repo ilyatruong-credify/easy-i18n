@@ -1,8 +1,8 @@
 package com.yuukaze.i18next.model
 
 import com.intellij.openapi.util.Pair
-import com.yuukaze.i18next.data.UpdateTranslation
 import com.yuukaze.i18next.data.i18nStore
+import com.yuukaze.i18next.data.updateI18nTranslation
 import org.jetbrains.annotations.Nls
 import java.util.stream.Collectors
 import javax.swing.event.TableModelListener
@@ -67,10 +67,7 @@ class TableModelTranslator(
             }
         }
         i18nStore.dispatch(
-            UpdateTranslation(
-                KeyedTranslation(key, messages),
-                KeyedTranslation(newKey, messages)
-            )
+            updateI18nTranslation(key, newKey, messages)
         )
     }
 
