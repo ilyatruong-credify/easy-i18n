@@ -6,6 +6,7 @@ import com.google.gson.JsonParser
 import com.google.gson.JsonPrimitive
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.runReadAction
+import com.intellij.openapi.application.runWriteAction
 import com.intellij.openapi.vfs.VirtualFile
 import com.yuukaze.i18next.io.TranslatorIO
 import com.yuukaze.i18next.model.LocalizedNode
@@ -48,7 +49,7 @@ class JsonTranslatorIO : TranslatorIO {
 
     override fun save(translations: Translations, directoryPath: String, callback: Consumer<Boolean>) {
         val gson = GsonBuilder().disableHtmlEscaping().setPrettyPrinting().create()
-        ApplicationManager.getApplication().runWriteAction {
+        runWriteAction {
             try {
                 for (locale in translations.locales) {
                     val content = JsonObject()
@@ -56,6 +57,7 @@ class JsonTranslatorIO : TranslatorIO {
                     val fullPath = "$directoryPath/$locale/translation.$FILE_EXTENSION"
                     val file = IOUtil.getFile(fullPath)
                     Objects.requireNonNull(file)!!.setBinaryContent(gson.toJson(content).toByteArray(file!!.charset))
+
                 }
                 callback.accept(true)
             } catch (e: IOException) {

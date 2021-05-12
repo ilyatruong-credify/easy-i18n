@@ -7,15 +7,13 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import com.yuukaze.i18next.model.KeyedTranslation
 import com.yuukaze.i18next.model.Translations
-import com.yuukaze.i18next.service.EasyI18nSettingsService
-import com.yuukaze.i18next.service.PsiElementSet
-import com.yuukaze.i18next.service.getEasyI18nDataStore
-import com.yuukaze.i18next.service.getEasyI18nReferenceService
+import com.yuukaze.i18next.service.*
 import com.yuukaze.i18next.utils.IOUtil
 import com.yuukaze.reduxkotlin.thunk.Thunk
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import org.reduxkotlin.Store
 import kotlin.streams.toList
 
 data class InitProjectAction(val project: Project)
@@ -48,7 +46,9 @@ class CreateTranslation(translation: KeyedTranslation) :
     UpdateTranslation(null, translation)
 
 class DeleteTranslation(translation: KeyedTranslation) :
-    UpdateTranslation(translation, null)
+    UpdateTranslation(translation, null) {
+    override fun toString(): String = "DeleteTranslation(origin=$origin)"
+}
 
 enum class TableFilterMode {
     ALL, SHOW_MISSING, SHOW_UNUSED
@@ -146,3 +146,21 @@ fun updateI18nTranslation(key: String, newKey: String, messages: MutableMap<Stri
         )
         getState().project!!.getEasyI18nDataStore().doWriteToDisk()
     }
+
+val Store<AppState>.project
+    get() = this.state.project!!
+
+private fun Store<AppState>.executeUpdateTransAction(action: Any, callback: (() -> Unit)? = null) {
+    this.dispatch(action)
+    this.project.getEasyI18nDataStore().doWriteToDisk(callback)
+}
+
+fun Store<AppState>.deleteI18nTranslation(key: KeyedTranslation) {
+    this.executeUpdateTransAction(DeleteTranslation(key)) {
+        Notifier.notifySuccess(this.project, "Delete key \"${key.key}\" success")
+    }
+}
+
+fun Store<AppState>.deleteI18nTranslation(key: String) {
+    this.deleteI18nTranslation(KeyedTranslation(key, null))
+}

@@ -8,8 +8,9 @@ import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.table.JBTable
 import com.intellij.util.ui.JBUI
 import com.yuukaze.i18next.data.I18nReduxSelectors
+import com.yuukaze.i18next.data.deleteI18nTranslation
+import com.yuukaze.i18next.data.i18nStore
 import com.yuukaze.i18next.model.TableModelTranslator
-import com.yuukaze.i18next.service.getEasyI18nDataStore
 import com.yuukaze.i18next.ui.action.ChangeKeyAction
 import com.yuukaze.i18next.ui.action.DuplicateAction
 import com.yuukaze.i18next.ui.dialog.MigrateDialog
@@ -145,9 +146,7 @@ class TableView(private val project: Project?) :
             .createConfirmation(
                 "Delete key $key?", "Yes", "No",
                 {
-                    val dataStore = project.getEasyI18nDataStore()
-                    dataStore.translations.nodes.removeChildren(key)
-                    dataStore.doWriteToDisk()
+                    i18nStore.deleteI18nTranslation(key)
                 }, 0
             ).showCenteredInCurrentWindow(project!!)
     }
