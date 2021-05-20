@@ -1,10 +1,9 @@
-package com.yuukaze.i18next.actions
+package com.yuukaze.i18next.ideEditor.actions
 
 import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import com.yuukaze.i18next.model.I18nKeyed
 import org.junit.Test
-import org.junit.jupiter.api.TestInstance
 
 internal class I18nTextReplacerTest : BasePlatformTestCase() {
     private val hint = "I18n-ize..."

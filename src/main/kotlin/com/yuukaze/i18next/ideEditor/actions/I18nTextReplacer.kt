@@ -1,4 +1,4 @@
-package com.yuukaze.i18next.actions
+package com.yuukaze.i18next.ideEditor.actions
 
 import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
@@ -9,7 +9,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Iconable
 import com.intellij.psi.PsiElement
-import com.yuukaze.i18next.actions.KeyRequest.manipulateTranslationKey
+import com.yuukaze.i18next.ideEditor.actions.KeyRequest.manipulateTranslationKey
 import com.yuukaze.i18next.factory.TranslationExtractor
 import com.yuukaze.i18next.model.KeyedTranslation
 import com.yuukaze.i18next.service.getEasyI18nService

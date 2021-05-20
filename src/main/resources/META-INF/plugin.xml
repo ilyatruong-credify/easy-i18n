@@ -22,11 +22,11 @@
         <notificationGroup id="EasyI18n Notification Group"
                            displayType="BALLOON"/>
         <intentionAction>
-            <className>com.yuukaze.i18next.actions.GoToI18nTable</className>
+            <className>com.yuukaze.i18next.ideEditor.actions.GoToI18nTable</className>
             <category>I18n</category>
         </intentionAction>
         <intentionAction>
-            <className>com.yuukaze.i18next.actions.I18nTextReplacer</className>
+            <className>com.yuukaze.i18next.ideEditor.actions.I18nTextReplacer</className>
             <category>I18n</category>
         </intentionAction>
     </extensions>

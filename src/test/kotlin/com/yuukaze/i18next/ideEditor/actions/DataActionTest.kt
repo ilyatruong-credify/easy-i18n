@@ -1,4 +1,4 @@
-package com.yuukaze.i18next.actions
+package com.yuukaze.i18next.ideEditor.actions
 
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import com.yuukaze.i18next.data.deleteI18nTranslation

@@ -92,24 +92,6 @@ fun selectI18nKey(key: String) {
 }
 
 @Suppress("FunctionName")
-private fun _duplicateI18nKey(key: String, newKey: String): Thunk<AppState> =
-    { dispatch, getState, _ ->
-        val project = getState().project!!
-        val translations = getState().translations!!
-        val keyObj = translations.getNode(key)
-        translations.getOrCreateNode(newKey).apply {
-            value = keyObj!!.value
-        }
-        project.getEasyI18nDataStore().doWriteToDisk {
-            dispatch(selectI18nKey(newKey))
-        }
-    }
-
-fun duplicateI18nKey(key: String, newKey: String) {
-    i18nStore.dispatch(_duplicateI18nKey(key, newKey))
-}
-
-@Suppress("FunctionName")
 private fun _changeI18nKey(key: String, newKey: String): Thunk<AppState> =
     { dispatch, getState, _ ->
         runBlocking {
@@ -163,4 +145,19 @@ fun Store<AppState>.deleteI18nTranslation(key: KeyedTranslation) {
 
 fun Store<AppState>.deleteI18nTranslation(key: String) {
     this.deleteI18nTranslation(KeyedTranslation(key, null))
+}
+
+fun Store<AppState>.duplicateI18nTranslation(key: String, newKey: String) {
+    val project = state.project!!
+    val translations = state.translations!!
+    val keyObj = translations.getNode(key)
+    translations.getOrCreateNode(newKey).apply {
+        value = mutableMapOf<String, String>().apply {
+            putAll(keyObj!!.value)
+        }
+    }
+    project.getEasyI18nDataStore().doWriteToDisk {
+        dispatch(selectI18nKey(newKey))
+        Notifier.notifySuccess(this.project, "Duplicate key \"${key}\" to \"$newKey\" success")
+    }
 }

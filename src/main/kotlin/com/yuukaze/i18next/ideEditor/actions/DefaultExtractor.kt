@@ -1,4 +1,4 @@
-package com.yuukaze.i18next.actions
+package com.yuukaze.i18next.ideEditor.actions
 
 import com.intellij.psi.PsiElement
 import com.yuukaze.i18next.factory.TranslationExtractor

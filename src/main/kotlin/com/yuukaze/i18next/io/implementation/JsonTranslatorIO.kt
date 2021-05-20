@@ -4,7 +4,6 @@ import com.google.gson.GsonBuilder
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import com.google.gson.JsonPrimitive
-import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.runReadAction
 import com.intellij.openapi.application.runWriteAction
 import com.intellij.openapi.vfs.VirtualFile
@@ -24,7 +23,7 @@ import java.util.stream.Collectors
 class JsonTranslatorIO : TranslatorIO {
     override fun read(directoryPath: String, callback: Consumer<Translations?>) {
 //        ApplicationManager.getApplication().saveAll() // Save opened files (required if new locales were added)
-        val x=1
+        val x = 1
         runReadAction {
             val directory = IOUtil.getFile(directoryPath)
             require(!(directory == null || directory.children == null)) { "Specified folder is invalid ($directoryPath)" }
@@ -69,7 +68,9 @@ class JsonTranslatorIO : TranslatorIO {
 
     private fun writeTree(locale: String, parent: JsonObject, node: LocalizedNode) {
         if (node.isLeaf && node.key != LocalizedNode.ROOT_KEY) {
-            if (node.value[locale] != null) {
+            if (node.value[locale]?.let {
+                    it.isNotEmpty() && it.isNotBlank()
+                } == true) {
                 parent.add(node.key, JsonPrimitive(node.value[locale]))
             }
         } else {
